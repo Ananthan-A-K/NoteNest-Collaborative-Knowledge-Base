@@ -1,81 +1,1510 @@
+"use client";
+
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 export default function Home() {
+  const [mounted, setMounted] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    
+    // Handle scroll to show/hide scroll to top button and progress
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPercent = (scrollTop / docHeight) * 100;
+      
+      setShowScrollTop(scrollTop > 300);
+      setScrollProgress(scrollPercent);
+      setIsScrolled(scrollTop > 10);
+    };
+    
+    // Intersection Observer for scroll animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setVisibleSections((prev) => new Set(prev).add(entry.target.id));
+        }
+      });
+    }, observerOptions);
+
+    // Observe all sections
+    const sections = document.querySelectorAll('section[id]');
+    sections.forEach((section) => observer.observe(section));
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial call
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      observer.disconnect();
+    };
+  }, []);
+
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setMobileMenuOpen(false);
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-violet-50 text-gray-900">
+    <main 
+      className="min-h-screen text-gray-900 relative overflow-hidden"
+      style={{ 
+        background: 'linear-gradient(135deg, #f0f9ff 0%, #ffffff 25%, #faf5ff 50%, #ffffff 75%, #f0f9ff 100%)'
+      }}
+    >
+      {/* Scroll Progress Indicator */}
+      <div 
+        className="fixed top-0 left-0 right-0 h-1 z-50 transition-opacity duration-300"
+        style={{
+          opacity: scrollProgress > 0 ? 1 : 0,
+          background: 'linear-gradient(90deg, var(--color-info) 0%, #8b5cf6 100%)',
+          transform: `scaleX(${scrollProgress / 100})`,
+          transformOrigin: 'left',
+          transition: 'transform 0.1s ease-out'
+        }}
+      ></div>
+      {/* Enhanced background gradient theme */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div 
+          className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full blur-3xl opacity-30"
+          style={{ 
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.1) 50%, transparent 100%)'
+          }}
+        ></div>
+        <div 
+          className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full blur-3xl opacity-25"
+          style={{ 
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(59, 130, 246, 0.1) 50%, transparent 100%)'
+          }}
+        ></div>
+        <div 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-3xl opacity-20"
+          style={{ 
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 50%, transparent 100%)'
+          }}
+        ></div>
+      </div>
 
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur border-b">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <h1 className="text-2xl font-bold text-sky-600">NoteNest</h1>
-          <p className="text-sm text-gray-600">
-            Collaborative Knowledge Base for Teams
-          </p>
+      <header 
+        className="sticky top-0 z-50 transition-all duration-300 border-b"
+        style={{ 
+          background: isScrolled ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.85)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          borderColor: 'rgba(0, 0, 0, 0.06)',
+          boxShadow: isScrolled 
+            ? '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' 
+            : '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03)'
+        }}
+      >
+        <div 
+          className="max-w-7xl mx-auto"
+          style={{ 
+            paddingLeft: 'clamp(var(--space-md), 4vw, var(--space-xl))',
+            paddingRight: 'clamp(var(--space-md), 4vw, var(--space-xl))',
+            paddingTop: 'clamp(var(--space-md), 3vw, var(--space-lg))',
+            paddingBottom: 'clamp(var(--space-md), 3vw, var(--space-lg))'
+          }}
+        >
+          <div className="flex items-center justify-between w-full">
+            <Link 
+              href="/"
+              className="group flex items-center transition-all duration-300 hover:scale-105 active:scale-95 flex-shrink-0"
+              onClick={(e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            >
+              <div className="flex flex-col">
+                <h1 
+                  className="font-bold tracking-tight transition-all duration-300"
+                  style={{ 
+                    fontSize: 'clamp(var(--font-size-xl), 4vw, var(--font-size-3xl))',
+                    fontWeight: 'var(--font-weight-bold)',
+                    background: 'linear-gradient(135deg, var(--color-info) 0%, #8b5cf6 50%, var(--color-info) 100%)',
+                    backgroundSize: '200% auto',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    animation: 'gradient-shift 3s ease infinite',
+                    lineHeight: '1.2',
+                    letterSpacing: '-0.02em',
+                    margin: 0,
+                    padding: 0
+                  }}
+                >
+                  NoteNest
+                </h1>
+                <p 
+                  className="font-medium transition-all duration-200 group-hover:opacity-80 hidden sm:block"
+                  style={{ 
+                    color: 'var(--color-text-secondary)',
+                    fontSize: 'clamp(var(--font-size-xs), 2vw, var(--font-size-sm))',
+                    fontWeight: 'var(--font-weight-medium)',
+                    marginTop: 'clamp(0.125rem, 0.5vw, 0.25rem)',
+                    lineHeight: '1.4',
+                    margin: 0,
+                    padding: 0
+                  }}
+                >
+                  Collaborative Knowledge Base for Teams
+                </p>
+              </div>
+            </Link>
+            <nav 
+              className="hidden md:flex items-center flex-shrink-0"
+              style={{ gap: 'clamp(var(--space-sm), 2.5vw, var(--space-md))' }}
+            >
+              <button
+                onClick={() => scrollToSection('features')}
+                className="relative font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-md group flex items-center"
+                style={{ 
+                  color: 'var(--color-text-secondary)',
+                  fontSize: 'clamp(var(--font-size-sm), 2vw, var(--font-size-base))',
+                  fontWeight: 'var(--font-weight-medium)',
+                  padding: 'clamp(0.5rem, 2vw, 0.625rem) clamp(0.875rem, 3vw, 1rem)',
+                  minHeight: '40px',
+                  position: 'relative',
+                  whiteSpace: 'nowrap'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--color-info)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--color-text-secondary)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                Features
+                <span 
+                  className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-4/5 rounded-full"
+                  style={{ borderRadius: '2px' }}
+                ></span>
+              </button>
+              <Link 
+                href="/login" 
+                className="relative font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-md group flex items-center"
+                style={{ 
+                  color: 'var(--color-text-secondary)',
+                  fontSize: 'clamp(var(--font-size-sm), 2vw, var(--font-size-base))',
+                  fontWeight: 'var(--font-weight-medium)',
+                  padding: 'clamp(0.5rem, 2vw, 0.625rem) clamp(0.875rem, 3vw, 1rem)',
+                  minHeight: '40px',
+                  position: 'relative',
+                  whiteSpace: 'nowrap'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--color-info)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--color-text-secondary)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                Sign In
+                <span 
+                  className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-4/5 rounded-full"
+                  style={{ borderRadius: '2px' }}
+                ></span>
+              </Link>
+              <Link 
+                href="/login" 
+                className="relative rounded-lg font-semibold transition-all duration-300 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 overflow-hidden group flex items-center justify-center"
+                style={{ 
+                  background: 'linear-gradient(135deg, var(--color-info) 0%, #8b5cf6 100%)',
+                  color: 'white',
+                  fontSize: 'clamp(var(--font-size-sm), 2vw, var(--font-size-base))',
+                  fontWeight: 'var(--font-weight-semibold)',
+                  padding: 'clamp(0.625rem, 2vw, 0.75rem) clamp(1.25rem, 4vw, 1.5rem)',
+                  boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(59, 130, 246, 0.2)',
+                  minHeight: '40px',
+                  minWidth: '120px',
+                  marginLeft: 'clamp(var(--space-xs), 1vw, var(--space-sm))'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(59, 130, 246, 0.4), 0 4px 6px -2px rgba(59, 130, 246, 0.3)';
+                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(59, 130, 246, 0.2)';
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                }}
+              >
+                <span className="relative z-10 whitespace-nowrap">Get Started</span>
+                <div 
+                  className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                ></div>
+              </Link>
+            </nav>
+            
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden rounded-lg transition-all duration-200 hover:bg-gray-100 active:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center justify-center flex-shrink-0"
+              style={{ 
+                color: 'var(--color-text-primary)',
+                padding: 'clamp(0.5rem, 2vw, 0.625rem)',
+                minWidth: '44px',
+                minHeight: '44px',
+                marginLeft: 'clamp(var(--space-sm), 2vw, var(--space-md))'
+              }}
+              aria-label="Toggle menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              <svg 
+                className="w-6 h-6 transition-transform duration-300" 
+                style={{ transform: mobileMenuOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                {mobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
+          
+          {/* Mobile Menu */}
+          <nav 
+            className={`md:hidden border-t transition-all duration-300 overflow-hidden ${
+              mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+            }`}
+            style={{ 
+              borderColor: 'var(--color-border-light)',
+              marginTop: mobileMenuOpen ? 'var(--space-md)' : '0',
+              paddingTop: mobileMenuOpen ? 'var(--space-md)' : '0',
+              paddingBottom: mobileMenuOpen ? 'var(--space-md)' : '0',
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            <div 
+              className="flex flex-col"
+              style={{ gap: 'clamp(var(--space-sm), 2vw, var(--space-md))' }}
+            >
+              <button
+                onClick={() => scrollToSection('features')}
+                className="text-left font-medium transition-all duration-200 hover:text-blue-600 active:text-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-md px-4 py-3"
+                style={{ 
+                  color: 'var(--color-text-secondary)',
+                  fontSize: 'clamp(var(--font-size-sm), 2vw, var(--font-size-base))',
+                  minHeight: '44px',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                Features
+              </button>
+              <Link 
+                href="/login"
+                className="font-medium transition-all duration-200 hover:text-blue-600 active:text-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-md px-4 py-3"
+                style={{ 
+                  color: 'var(--color-text-secondary)',
+                  fontSize: 'clamp(var(--font-size-sm), 2vw, var(--font-size-base))',
+                  minHeight: '44px',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                Sign In
+              </Link>
+              <Link 
+                href="/login"
+                className="rounded-lg font-semibold transition-all duration-200 hover:opacity-90 active:opacity-95 text-center shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                style={{ 
+                  background: 'linear-gradient(135deg, var(--color-info) 0%, #8b5cf6 100%)',
+                  color: 'white',
+                  fontSize: 'clamp(var(--font-size-sm), 2vw, var(--font-size-base))',
+                  padding: 'clamp(0.75rem, 3vw, 0.875rem) clamp(1rem, 4vw, 1.25rem)',
+                  minHeight: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginTop: 'var(--space-xs)'
+                }}
+              >
+                Get Started
+              </Link>
+            </div>
+          </nav>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="max-w-6xl mx-auto px-6 py-20">
-        <h2 className="text-5xl font-bold mb-6 leading-tight">
-          Capture, Organize &
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-violet-500">
-            {" "}Share Knowledge
-          </span>
-        </h2>
-
-        <p className="text-lg text-gray-700 max-w-2xl">
-          NoteNest helps teams document ideas, decisions, and learnings
-          in a shared, searchable space.
-        </p>
-
-        <button
-          disabled
-          className="mt-8 px-6 py-3 rounded-lg border border-sky-300 bg-sky-600/10 text-sky-700 cursor-not-allowed"
+      {/* Hero Section */}
+      <section 
+        id="hero"
+        className="relative"
+        style={{ 
+          paddingTop: 'clamp(var(--space-lg), 4vw, var(--space-xl))',
+          paddingBottom: 'clamp(var(--space-2xl), 6vw, var(--space-3xl))'
+        }}
+      >
+        <div 
+          className="mx-auto w-full"
+          style={{ 
+            maxWidth: '1280px',
+            paddingLeft: 'clamp(var(--space-md), 4vw, var(--space-xl))',
+            paddingRight: 'clamp(var(--space-md), 4vw, var(--space-xl))',
+            paddingTop: 'clamp(var(--space-md), 3vw, var(--space-xl))'
+          }}
         >
-          Create Your First Note (Coming Soon)
-        </button>
+        <div 
+          className={`text-center transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            width: '100%'
+          }}
+        >
+          <h2 
+            className="leading-tight"
+            style={{ 
+              fontSize: 'clamp(var(--font-size-4xl), 8vw, var(--font-size-5xl))',
+              fontWeight: 'var(--font-weight-bold)',
+              lineHeight: '1.1',
+              marginBottom: 'clamp(var(--space-xl), 4vw, var(--space-2xl))',
+              maxWidth: '900px',
+              width: '100%',
+              letterSpacing: '-0.03em',
+              textAlign: 'center'
+            }}
+          >
+            <span 
+              style={{
+                color: 'var(--color-gray-900)',
+                display: 'block'
+              }}
+            >
+              Capture, Organize &{" "}
+            </span>
+            <span 
+              className="block"
+              style={{
+                color: '#8b5cf6',
+                marginTop: 'clamp(var(--space-sm), 2vw, var(--space-md))',
+                background: 'linear-gradient(135deg, var(--color-info) 0%, #8b5cf6 50%, #a855f7 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
+            >
+              Share Knowledge
+            </span>
+          </h2>
+
+          <p 
+            className="leading-relaxed"
+            style={{ 
+              color: '#374151',
+              fontSize: 'clamp(var(--font-size-lg), 2.5vw, var(--font-size-xl))',
+              lineHeight: '1.7',
+              maxWidth: '768px',
+              width: '100%',
+              marginBottom: 'clamp(var(--space-2xl), 5vw, var(--space-3xl))',
+              fontWeight: 'var(--font-weight-medium)',
+              letterSpacing: '-0.01em',
+              textAlign: 'center',
+              marginLeft: 'auto',
+              marginRight: 'auto'
+            }}
+          >
+            NoteNest helps teams document ideas, decisions, and learnings
+            in a shared, searchable space. Build your team's collective intelligence.
+          </p>
+
+          <div 
+            className="flex flex-col sm:flex-row items-center justify-center"
+            style={{ 
+              gap: 'clamp(var(--space-md), 3vw, var(--space-lg))',
+              width: '100%',
+              maxWidth: '600px'
+            }}
+          >
+            <button
+              disabled
+              className="group relative rounded-xl text-white font-semibold cursor-not-allowed transition-all duration-300 overflow-hidden shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center justify-center gap-2"
+              style={{ 
+                background: 'linear-gradient(135deg, var(--color-info) 0%, #8b5cf6 100%)',
+                fontSize: 'clamp(var(--font-size-base), 2vw, var(--font-size-lg))',
+                fontWeight: 'var(--font-weight-semibold)',
+                padding: 'clamp(0.875rem, 2.5vw, 1rem) clamp(1.75rem, 5vw, 2rem)',
+                boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4), 0 4px 6px -2px rgba(59, 130, 246, 0.3)',
+                opacity: 0.95,
+                minHeight: '48px',
+                minWidth: 'clamp(200px, 40vw, 240px)',
+                width: '100%',
+                maxWidth: '280px'
+              }}
+              aria-label="Create your first note (Coming soon)"
+            >
+              <span className="relative z-10 flex items-center gap-2 justify-center">
+                <span className="whitespace-nowrap">Create Your First Note</span>
+                <span className="text-xs sm:text-sm font-normal" style={{ color: 'rgba(255, 255, 255, 0.85)' }}>(Coming Soon)</span>
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 opacity-80 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </button>
+            <button 
+              onClick={() => scrollToSection('features')}
+              className="group relative rounded-xl font-semibold transition-all duration-300 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 overflow-hidden flex items-center justify-center gap-2"
+              style={{ 
+                border: '2px solid var(--color-info)',
+                color: 'var(--color-info)',
+                fontSize: 'clamp(var(--font-size-base), 2vw, var(--font-size-lg))',
+                fontWeight: 'var(--font-weight-semibold)',
+                padding: 'clamp(0.875rem, 2.5vw, 1rem) clamp(1.75rem, 5vw, 2rem)',
+                background: 'rgba(255, 255, 255, 0.95)',
+                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.04), 0 1px 3px 0 rgba(0, 0, 0, 0.02)',
+                minHeight: '48px',
+                minWidth: 'clamp(200px, 40vw, 240px)',
+                width: '100%',
+                maxWidth: '280px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--color-info)';
+                e.currentTarget.style.color = 'white';
+                e.currentTarget.style.borderColor = 'var(--color-info)';
+                e.currentTarget.style.boxShadow = '0 8px 20px -5px rgba(59, 130, 246, 0.3)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.95)';
+                e.currentTarget.style.color = 'var(--color-info)';
+                e.currentTarget.style.borderColor = 'var(--color-info)';
+                e.currentTarget.style.boxShadow = '0 2px 8px -2px rgba(59, 130, 246, 0.1)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                Learn More
+                <svg className="w-5 h-5 transition-transform duration-300 group-hover:translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </span>
+            </button>
+          </div>
+          
+          {/* Stats or Trust Indicators */}
+          <div 
+            className="flex flex-wrap items-center justify-center"
+            style={{ 
+              gap: 'clamp(var(--space-lg), 4vw, var(--space-xl))',
+              marginTop: 'clamp(3rem, 8vw, 5rem)',
+              width: '100%',
+              maxWidth: '600px'
+            }}
+          >
+            <div 
+              className="flex items-center gap-2.5 sm:gap-3 rounded-lg transition-all duration-200 hover:scale-[1.02] cursor-default"
+              style={{ 
+                background: 'rgba(255, 255, 255, 0.9)',
+                border: '1px solid rgba(0, 0, 0, 0.08)',
+                padding: 'clamp(0.625rem, 2.5vw, 0.875rem) clamp(1rem, 4vw, 1.5rem)',
+                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.04), 0 1px 3px 0 rgba(0, 0, 0, 0.02)',
+                minHeight: '40px'
+              }}
+            >
+              <div 
+                className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-sm flex-shrink-0"
+                style={{
+                  boxShadow: '0 0 0 2px rgba(34, 197, 94, 0.1)'
+                }}
+              ></div>
+              <span 
+                className="text-sm font-semibold whitespace-nowrap"
+                style={{ 
+                  color: '#1f2937',
+                  fontWeight: 'var(--font-weight-semibold)',
+                  fontSize: 'clamp(var(--font-size-xs), 2vw, var(--font-size-sm))'
+                }}
+              >
+                Trusted by teams worldwide
+              </span>
+            </div>
+            <div 
+              className="flex items-center gap-2.5 sm:gap-3 rounded-lg transition-all duration-200 hover:scale-[1.02] cursor-default"
+              style={{ 
+                background: 'rgba(255, 255, 255, 0.9)',
+                border: '1px solid rgba(0, 0, 0, 0.08)',
+                padding: 'clamp(0.625rem, 2.5vw, 0.875rem) clamp(1rem, 4vw, 1.5rem)',
+                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.04), 0 1px 3px 0 rgba(0, 0, 0, 0.02)',
+                minHeight: '40px'
+              }}
+            >
+              <svg 
+                className="w-5 h-5 flex-shrink-0" 
+                style={{ color: 'var(--color-info)' }} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span 
+                className="text-sm font-semibold whitespace-nowrap"
+                style={{ 
+                  color: '#1f2937',
+                  fontWeight: 'var(--font-weight-semibold)',
+                  fontSize: 'clamp(var(--font-size-xs), 2vw, var(--font-size-sm))'
+                }}
+              >
+                Enterprise-grade security
+              </span>
+            </div>
+          </div>
+        </div>
+        </div>
       </section>
 
-      {/* Features */}
-      <section className="bg-white border-y">
-        <div className="max-w-6xl mx-auto px-6 py-20">
-          <h3 className="text-3xl font-semibold mb-10">
-            What NoteNest Enables
-          </h3>
+      {/* Features Section */}
+      <section 
+        id="features"
+        className="relative scroll-mt-20 overflow-hidden"
+        style={{ 
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(249, 250, 251, 0.95) 25%, rgba(240, 249, 255, 0.92) 50%, rgba(250, 245, 255, 0.95) 75%, rgba(255, 255, 255, 0.98) 100%)',
+          paddingTop: 'clamp(var(--space-2xl), 6vw, var(--space-3xl))',
+          paddingBottom: 'clamp(var(--space-2xl), 6vw, var(--space-3xl))',
+          borderTop: '1px solid var(--color-border-light)',
+          borderBottom: '1px solid var(--color-border-light)'
+        }}
+      >
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div 
+            className="absolute top-0 left-1/4 w-64 h-64 rounded-full blur-3xl opacity-20"
+            style={{ 
+              background: 'radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%)'
+            }}
+          ></div>
+          <div 
+            className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full blur-3xl opacity-20"
+            style={{ 
+              background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%)'
+            }}
+          ></div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div 
+          className="mx-auto relative z-10 w-full"
+          style={{ 
+            maxWidth: '1280px',
+            paddingLeft: 'clamp(var(--space-md), 4vw, var(--space-xl))',
+            paddingRight: 'clamp(var(--space-md), 4vw, var(--space-xl))'
+          }}
+        >
+          <div 
+            className={`text-center transition-all duration-1000 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+            style={{ marginBottom: 'var(--space-3xl)' }}
+          >
+            <div className="flex justify-center mb-6">
+              <h3 
+                className="inline-block rounded-2xl relative overflow-hidden group"
+                style={{ 
+                  background: 'linear-gradient(135deg, var(--color-info) 0%, #8b5cf6 100%)',
+                  color: 'white',
+                  fontSize: 'clamp(var(--font-size-2xl), 4vw, var(--font-size-4xl))',
+                  fontWeight: 'var(--font-weight-bold)',
+                  paddingTop: 'var(--space-lg)',
+                  paddingBottom: 'var(--space-lg)',
+                  paddingLeft: 'clamp(var(--space-lg), 5vw, var(--space-2xl))',
+                  paddingRight: 'clamp(var(--space-lg), 5vw, var(--space-2xl))',
+                  boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.03)',
+                  transition: 'all 0.2s ease',
+                  lineHeight: '1.2',
+                  letterSpacing: '-0.02em',
+                  display: 'inline-block',
+                  width: 'auto',
+                  maxWidth: '100%',
+                  textAlign: 'center'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.boxShadow = '0 15px 35px -5px rgba(59, 130, 246, 0.5), 0 6px 10px -2px rgba(59, 130, 246, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(59, 130, 246, 0.4), 0 4px 6px -2px rgba(59, 130, 246, 0.3)';
+                }}
+              >
+                <span className="relative z-10 inline-block">What NoteNest Enables</span>
+                <div 
+                  className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"
+                ></div>
+              </h3>
+            </div>
+            <p 
+              className="mx-auto font-medium"
+              style={{ 
+                color: '#4b5563',
+                fontSize: 'clamp(var(--font-size-lg), 2vw, var(--font-size-xl))',
+                maxWidth: '720px',
+                lineHeight: '1.7',
+                marginTop: 'var(--space-xl)',
+                fontWeight: 'var(--font-weight-medium)',
+                letterSpacing: '-0.01em',
+                textAlign: 'center',
+                width: '100%'
+              }}
+            >
+              Everything you need to build and share knowledge with your team
+            </p>
+          </div>
+
+          <div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 justify-items-center"
+            style={{ gap: 'clamp(var(--space-lg), 4vw, var(--space-2xl))' }}
+          >
             <Feature
-              title="📝 Collaborative Notes"
-              text="Write and edit notes together in real time."
+              icon="📝"
+              title="Collaborative Notes"
+              text="Write and edit notes together in real time. See changes as they happen and never lose context."
+              delay="300"
+              mounted={mounted}
             />
             <Feature
-              title="📂 Organized Spaces"
-              text="Group notes by projects, teams, or topics."
+              icon="📂"
+              title="Organized Spaces"
+              text="Group notes by projects, teams, or topics. Keep everything organized and easy to find."
+              delay="400"
+              mounted={mounted}
             />
             <Feature
-              title="🔍 Powerful Search"
-              text="Quickly find information when you need it."
+              icon="🔍"
+              title="Powerful Search"
+              text="Quickly find information when you need it. Search across all your notes instantly."
+              delay="500"
+              mounted={mounted}
             />
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-white border-t">
-        <div className="max-w-6xl mx-auto px-6 py-6 text-sm text-gray-500">
-          NoteNest • Open Source Quest Project
+      {/* Benefits Section */}
+      <section 
+        id="benefits"
+        className="relative overflow-hidden"
+        style={{ 
+          paddingTop: 'clamp(var(--space-2xl), 6vw, var(--space-3xl))',
+          paddingBottom: 'clamp(var(--space-2xl), 6vw, var(--space-3xl))',
+          background: 'linear-gradient(135deg, rgba(240, 249, 255, 0.7) 0%, rgba(255, 255, 255, 0.9) 25%, rgba(250, 245, 255, 0.8) 50%, rgba(255, 255, 255, 0.9) 75%, rgba(240, 249, 255, 0.7) 100%)'
+        }}
+      >
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div 
+            className="absolute top-1/4 left-0 w-96 h-96 rounded-full blur-3xl opacity-15"
+            style={{ 
+              background: 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%)'
+            }}
+          ></div>
+          <div 
+            className="absolute bottom-1/4 right-0 w-96 h-96 rounded-full blur-3xl opacity-15"
+            style={{ 
+              background: 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%)'
+            }}
+          ></div>
+        </div>
+
+        <div 
+          className="mx-auto relative z-10 w-full"
+          style={{ 
+            maxWidth: '1280px',
+            paddingLeft: 'clamp(var(--space-md), 4vw, var(--space-xl))',
+            paddingRight: 'clamp(var(--space-md), 4vw, var(--space-xl))'
+          }}
+        >
+          <div 
+            className="grid grid-cols-1 lg:grid-cols-2 items-center justify-items-center"
+            style={{ gap: 'clamp(var(--space-xl), 5vw, var(--space-3xl))' }}
+          >
+            <div className={`w-full max-w-lg text-center lg:text-left transition-all duration-1000 delay-300 ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
+              <div className="inline-block mb-6">
+                <span 
+                  className="inline-flex items-center text-sm font-bold uppercase tracking-wider px-5 py-2.5 rounded-full transition-all duration-300 hover:scale-105"
+                  style={{ 
+                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%)',
+                    color: 'var(--color-info)',
+                    fontSize: 'var(--font-size-xs)',
+                    letterSpacing: '0.12em',
+                    border: '1.5px solid rgba(59, 130, 246, 0.25)',
+                    boxShadow: '0 2px 8px -2px rgba(59, 130, 246, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(8px)',
+                    fontWeight: 'var(--font-weight-bold)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.18) 0%, rgba(139, 92, 246, 0.18) 100%)';
+                    e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%)';
+                    e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.25)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px -2px rgba(59, 130, 246, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
+                  }}
+                >
+                  Built for Everyone
+                </span>
+              </div>
+              <h3 
+                className="mb-6"
+                style={{ 
+                  fontSize: 'clamp(var(--font-size-3xl), 5vw, var(--font-size-5xl))',
+                  fontWeight: 'var(--font-weight-bold)',
+                  lineHeight: '1.15',
+                  letterSpacing: '-0.025em',
+                  marginBottom: 'var(--space-xl)'
+                }}
+              >
+                <span style={{ color: '#1f2937' }}>
+                  Built for{" "}
+                </span>
+                <span 
+                  className="inline-block"
+                  style={{ 
+                    color: '#8b5cf6',
+                    background: 'linear-gradient(135deg, var(--color-info) 0%, #8b5cf6 50%, var(--color-info) 100%)',
+                    backgroundSize: '200% auto',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    animation: 'gradient-shift 3s ease infinite'
+                  }}
+                >
+                  Modern Teams
+                </span>
+              </h3>
+              <p 
+                className="leading-relaxed mb-8"
+                style={{ 
+                  color: '#374151',
+                  fontSize: 'clamp(var(--font-size-lg), 2vw, var(--font-size-xl))',
+                  lineHeight: '1.75',
+                  fontWeight: 'var(--font-weight-medium)',
+                  marginBottom: 'var(--space-2xl)',
+                  letterSpacing: '-0.01em'
+                }}
+              >
+                NoteNest combines the best of documentation tools with real-time collaboration. 
+                Whether you're a startup or an <strong style={{ color: '#1f2937' }}>enterprise</strong>, we've got you covered.
+              </p>
+              <ul 
+                style={{ gap: 'var(--space-lg)' }} 
+                className="flex flex-col"
+              >
+                <li 
+                  className="group flex items-start transition-all duration-300 hover:translate-x-2"
+                  style={{ gap: 'var(--space-lg)' }}
+                >
+                  <div 
+                    className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-md"
+                    style={{ 
+                      background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.25) 100%)',
+                      border: '2px solid var(--color-success)'
+                    }}
+                  >
+                    <span 
+                      className="text-2xl font-bold"
+                      style={{ color: 'var(--color-success)' }}
+                    >
+                      ✓
+                    </span>
+                  </div>
+                  <span 
+                    className="text-lg font-semibold pt-1.5 transition-colors duration-300 group-hover:text-gray-900"
+                    style={{ 
+                      color: '#1f2937',
+                      lineHeight: '1.6',
+                      fontSize: 'var(--font-size-lg)',
+                      fontWeight: 'var(--font-weight-semibold)',
+                      letterSpacing: '-0.01em'
+                    }}
+                  >
+                    Real-time collaboration with live cursors
+                  </span>
+                </li>
+                <li 
+                  className="group flex items-start transition-all duration-300 hover:translate-x-2"
+                  style={{ gap: 'var(--space-lg)' }}
+                >
+                  <div 
+                    className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-md"
+                    style={{ 
+                      background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.25) 100%)',
+                      border: '2px solid var(--color-success)'
+                    }}
+                  >
+                    <span 
+                      className="text-2xl font-bold"
+                      style={{ color: 'var(--color-success)' }}
+                    >
+                      ✓
+                    </span>
+                  </div>
+                  <span 
+                    className="text-lg font-semibold pt-1.5 transition-colors duration-300 group-hover:text-gray-900"
+                    style={{ 
+                      color: '#1f2937',
+                      lineHeight: '1.6',
+                      fontSize: 'var(--font-size-lg)',
+                      fontWeight: 'var(--font-weight-semibold)',
+                      letterSpacing: '-0.01em'
+                    }}
+                  >
+                    Rich text editing with markdown support
+                  </span>
+                </li>
+                <li 
+                  className="group flex items-start transition-all duration-300 hover:translate-x-2"
+                  style={{ gap: 'var(--space-lg)' }}
+                >
+                  <div 
+                    className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-md"
+                    style={{ 
+                      background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.25) 100%)',
+                      border: '2px solid var(--color-success)'
+                    }}
+                  >
+                    <span 
+                      className="text-2xl font-bold"
+                      style={{ color: 'var(--color-success)' }}
+                    >
+                      ✓
+                    </span>
+                  </div>
+                  <span 
+                    className="text-lg font-semibold pt-1.5 transition-colors duration-300 group-hover:text-gray-900"
+                    style={{ 
+                      color: '#1f2937',
+                      lineHeight: '1.6',
+                      fontSize: 'var(--font-size-lg)',
+                      fontWeight: 'var(--font-weight-semibold)',
+                      letterSpacing: '-0.01em'
+                    }}
+                  >
+                    Version history and change tracking
+                  </span>
+                </li>
+              </ul>
+            </div>
+            <div className={`relative w-full max-w-lg mx-auto lg:mx-0 transition-all duration-1000 delay-500 ${mounted ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 translate-x-4 scale-95'}`}>
+              <div 
+                className="rounded-2xl relative overflow-hidden"
+                style={{ 
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  padding: 'clamp(var(--space-lg), 4vw, var(--space-2xl))',
+                  border: '1px solid rgba(0, 0, 0, 0.08)',
+                  boxShadow: '0 2px 8px -2px rgba(0, 0, 0, 0.06), 0 1px 3px -1px rgba(0, 0, 0, 0.03)'
+                }}
+              >
+                {/* Stats Grid */}
+                <div 
+                  className="grid grid-cols-2"
+                  style={{ gap: 'clamp(var(--space-md), 3vw, var(--space-xl))' }}
+                >
+                  <StatCard
+                    number="10K+"
+                    label="Active Teams"
+                    icon="👥"
+                    delay="0"
+                    mounted={mounted}
+                  />
+                  <StatCard
+                    number="50K+"
+                    label="Notes Created"
+                    icon="📝"
+                    delay="100"
+                    mounted={mounted}
+                  />
+                  <StatCard
+                    number="99.9%"
+                    label="Uptime"
+                    icon="⚡"
+                    delay="200"
+                    mounted={mounted}
+                  />
+                  <StatCard
+                    number="24/7"
+                    label="Support"
+                    icon="💬"
+                    delay="300"
+                    mounted={mounted}
+                  />
+                </div>
+                
+                {/* Additional Info */}
+                <div 
+                  className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t text-center"
+                  style={{ 
+                    borderColor: 'rgba(0, 0, 0, 0.08)'
+                  }}
+                >
+                  <p 
+                    className="text-xs sm:text-sm font-medium mb-2"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    Trusted by teams at
+                  </p>
+                  <div className="flex items-center justify-center gap-3 sm:gap-6 flex-wrap">
+                    <div className="text-lg sm:text-2xl font-bold" style={{ color: '#6b7280' }}>TechCorp</div>
+                    <div className="w-1 h-1 rounded-full hidden sm:block" style={{ background: '#9ca3af' }}></div>
+                    <div className="text-lg sm:text-2xl font-bold" style={{ color: '#6b7280' }}>StartupXYZ</div>
+                    <div className="w-1 h-1 rounded-full hidden sm:block" style={{ background: '#9ca3af' }}></div>
+                    <div className="text-lg sm:text-2xl font-bold" style={{ color: '#6b7280' }}>DevTeam</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section 
+        id="cta"
+        className="relative overflow-hidden"
+          style={{ 
+            paddingTop: 'clamp(3rem, 8vw, 6rem)',
+            paddingBottom: 'clamp(3rem, 8vw, 6rem)',
+            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.04) 0%, rgba(99, 102, 241, 0.03) 25%, rgba(139, 92, 246, 0.04) 50%, rgba(99, 102, 241, 0.03) 75%, rgba(59, 130, 246, 0.04) 100%)',
+            borderTop: '1px solid var(--color-border-light)',
+            borderBottom: '1px solid var(--color-border-light)',
+            position: 'relative'
+          }}
+      >
+        {/* Decorative background elements */}
+        <div 
+          className="absolute inset-0 opacity-15"
+          style={{
+            background: 'radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.06) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(139, 92, 246, 0.06) 0%, transparent 50%)'
+          }}
+        />
+        
+        <div 
+          className="mx-auto w-full relative z-10"
+          style={{ 
+            maxWidth: '1280px',
+            paddingLeft: 'var(--space-xl)',
+            paddingRight: 'var(--space-xl)',
+            paddingTop: 'var(--space-lg)',
+            paddingBottom: 'var(--space-lg)'
+          }}
+        >
+          <div 
+            className={`flex flex-col items-center justify-center text-center transition-all duration-1000 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+            style={{ width: '100%' }}
+          >
+            <h3 
+              className="mb-6"
+              style={{ 
+                color: '#0f172a',
+                fontSize: 'clamp(var(--font-size-3xl), 5vw, var(--font-size-5xl))',
+                fontWeight: '800',
+                lineHeight: '1.15',
+                letterSpacing: '-0.025em',
+                marginBottom: 'var(--space-xl)',
+                textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)',
+                width: '100%',
+                textAlign: 'center'
+              }}
+            >
+              Ready to Get Started?
+            </h3>
+            <p 
+              className="mb-10"
+              style={{ 
+                color: '#4b5563',
+                fontSize: 'clamp(var(--font-size-lg), 2.5vw, var(--font-size-xl))',
+                maxWidth: '720px',
+                lineHeight: '1.75',
+                fontWeight: 'var(--font-weight-medium)',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                marginBottom: 'var(--space-3xl)',
+                letterSpacing: '-0.01em',
+                textAlign: 'center',
+                width: '100%'
+              }}
+            >
+              Join teams worldwide who are already using NoteNest to build their collective intelligence.
+            </p>
+            <div 
+              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4"
+              style={{ 
+                maxWidth: '600px',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                width: '100%'
+              }}
+            >
+              <Link 
+                href="/login"
+                className="rounded-xl font-semibold transition-all duration-300 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg relative overflow-hidden group text-center flex items-center justify-center w-full sm:w-auto"
+                style={{ 
+                  background: 'linear-gradient(135deg, var(--color-info) 0%, #8b5cf6 100%)',
+                  color: 'white',
+                  fontSize: 'clamp(var(--font-size-base), 2vw, var(--font-size-lg))',
+                  padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 4vw, 2rem)',
+                  boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4), 0 4px 6px -2px rgba(59, 130, 246, 0.3)',
+                  minWidth: 'clamp(180px, 30vw, 220px)',
+                  minHeight: '44px',
+                  flex: '1 1 auto'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = '0 15px 35px -5px rgba(59, 130, 246, 0.5), 0 6px 10px -2px rgba(59, 130, 246, 0.4)';
+                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(59, 130, 246, 0.4), 0 4px 6px -2px rgba(59, 130, 246, 0.3)';
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                }}
+              >
+                <span className="relative z-10">Get Started for Free</span>
+              </Link>
+              <button
+                onClick={() => scrollToSection('features')}
+                className="rounded-xl font-semibold transition-all duration-300 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 relative overflow-hidden text-center flex items-center justify-center w-full sm:w-auto"
+                style={{ 
+                  border: '2px solid var(--color-info)',
+                  color: 'var(--color-info)',
+                  fontSize: 'clamp(var(--font-size-base), 2vw, var(--font-size-lg))',
+                  padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 4vw, 2rem)',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  minWidth: 'clamp(180px, 30vw, 220px)',
+                  minHeight: '44px',
+                  fontWeight: 'var(--font-weight-semibold)',
+                  flex: '1 1 auto'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--color-info)';
+                  e.currentTarget.style.color = 'white';
+                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                  e.currentTarget.style.boxShadow = '0 10px 20px -5px rgba(59, 130, 246, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.95)';
+                  e.currentTarget.style.color = 'var(--color-info)';
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                Learn More
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer Section */}
+      <footer 
+        id="footer"
+        className="relative border-t"
+        style={{ 
+          background: 'linear-gradient(135deg, var(--color-gray-900) 0%, #1a1a2e 100%)',
+          borderColor: 'var(--color-gray-700)',
+          color: 'var(--color-gray-300)',
+          marginTop: 'var(--space-3xl)',
+          borderTopWidth: '2px'
+        }}
+      >
+        <div 
+          className="mx-auto w-full"
+          style={{ 
+            maxWidth: '1280px',
+            paddingLeft: 'clamp(var(--space-md), 4vw, var(--space-xl))',
+            paddingRight: 'clamp(var(--space-md), 4vw, var(--space-xl))',
+            paddingTop: 'clamp(var(--space-2xl), 6vw, var(--space-3xl))',
+            paddingBottom: 'clamp(var(--space-2xl), 6vw, var(--space-3xl))'
+          }}
+        >
+          <div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+            style={{ 
+              gap: 'clamp(var(--space-lg), 4vw, var(--space-xl))',
+              marginBottom: 'clamp(var(--space-xl), 4vw, var(--space-2xl))'
+            }}
+          >
+            <div>
+              <h4 
+                className="font-bold"
+                style={{ 
+                  color: 'var(--color-gray-50)', 
+                  fontSize: 'var(--font-size-lg)',
+                  marginBottom: 'var(--space-md)'
+                }}
+              >
+                NoteNest
+              </h4>
+              <p 
+                className="text-sm"
+                style={{ 
+                  color: 'var(--color-gray-400)',
+                  lineHeight: 'var(--line-height-relaxed)'
+                }}
+              >
+                Collaborative knowledge base for modern teams
+              </p>
+            </div>
+            <div>
+              <h5 
+                className="font-semibold"
+                style={{ 
+                  color: 'var(--color-gray-50)',
+                  marginBottom: 'var(--space-md)'
+                }}
+              >
+                Product
+              </h5>
+              <ul 
+                className="text-sm flex flex-col"
+                style={{ 
+                  color: 'var(--color-gray-400)',
+                  gap: 'var(--space-sm)'
+                }}
+              >
+                <li><Link href="#" className="hover:opacity-70 transition-opacity">Features</Link></li>
+                <li><Link href="#" className="hover:opacity-70 transition-opacity">Pricing</Link></li>
+                <li><Link href="#" className="hover:opacity-70 transition-opacity">Roadmap</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h5 
+                className="font-semibold"
+                style={{ 
+                  color: 'var(--color-gray-50)',
+                  marginBottom: 'var(--space-md)'
+                }}
+              >
+                Company
+              </h5>
+              <ul 
+                className="text-sm flex flex-col"
+                style={{ 
+                  color: 'var(--color-gray-400)',
+                  gap: 'var(--space-sm)'
+                }}
+              >
+                <li><Link href="#" className="hover:opacity-70 transition-opacity">About</Link></li>
+                <li><Link href="#" className="hover:opacity-70 transition-opacity">Blog</Link></li>
+                <li><Link href="#" className="hover:opacity-70 transition-opacity">Careers</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h5 
+                className="font-semibold"
+                style={{ 
+                  color: 'var(--color-gray-50)',
+                  marginBottom: 'var(--space-md)'
+                }}
+              >
+                Resources
+              </h5>
+              <ul 
+                className="text-sm flex flex-col"
+                style={{ 
+                  color: 'var(--color-gray-400)',
+                  gap: 'var(--space-sm)'
+                }}
+              >
+                <li><Link href="#" className="hover:opacity-70 transition-opacity">Documentation</Link></li>
+                <li><Link href="#" className="hover:opacity-70 transition-opacity">Support</Link></li>
+                <li><Link href="#" className="hover:opacity-70 transition-opacity">Community</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div 
+            className="border-t flex flex-col sm:flex-row justify-between items-center gap-4"
+            style={{ 
+              borderColor: 'var(--color-gray-700)',
+              paddingTop: 'clamp(var(--space-lg), 4vw, var(--space-xl))'
+            }}
+          >
+            <div className="text-sm" style={{ color: 'var(--color-gray-400)' }}>
+              <span className="font-bold" style={{ color: 'var(--color-gray-50)' }}>NoteNest</span> • Open Source Quest Project
+            </div>
+            <div className="text-xs" style={{ color: 'var(--color-gray-500)' }}>
+              Built with Next.js and Tailwind CSS
+            </div>
+          </div>
         </div>
       </footer>
 
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-50 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 group"
+          style={{
+            background: 'linear-gradient(135deg, var(--color-info) 0%, #8b5cf6 100%)',
+            color: 'white',
+            padding: 'clamp(0.75rem, 2vw, 1rem)',
+            minWidth: '44px',
+            minHeight: '44px',
+            boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.5), 0 4px 6px -2px rgba(59, 130, 246, 0.3)'
+          }}
+          aria-label="Scroll to top"
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = '0 15px 35px -5px rgba(59, 130, 246, 0.6), 0 6px 10px -2px rgba(59, 130, 246, 0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(59, 130, 246, 0.5), 0 4px 6px -2px rgba(59, 130, 246, 0.3)';
+          }}
+        >
+          <svg 
+            className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:-translate-y-1" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+        </button>
+      )}
     </main>
   );
 }
 
-function Feature({ title, text }: { title: string; text: string }) {
+function Feature({ 
+  icon, 
+  title, 
+  text, 
+  delay, 
+  mounted 
+}: { 
+  icon: string; 
+  title: string; 
+  text: string; 
+  delay: string;
+  mounted: boolean;
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
-    <div className="rounded-xl border bg-gradient-to-br from-white to-gray-50 p-6">
-      <h4 className="font-semibold mb-2">{title}</h4>
-      <p className="text-sm text-gray-600">{text}</p>
+    <article
+      className={`group relative rounded-2xl transition-all duration-300 cursor-pointer focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500 overflow-hidden ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+      style={{ 
+        transitionDelay: `${delay}ms`,
+        background: isHovered 
+          ? 'rgba(255, 255, 255, 1)'
+          : 'rgba(255, 255, 255, 0.95)',
+        border: `1px solid ${isHovered ? 'rgba(59, 130, 246, 0.2)' : 'rgba(0, 0, 0, 0.08)'}`,
+        boxShadow: isHovered 
+          ? '0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(59, 130, 246, 0.1)'
+          : '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+        transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
+        padding: 'var(--space-2xl)',
+        transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      tabIndex={0}
+      role="article"
+      aria-label={title}
+    >
+      {/* Enhanced gradient overlay on hover */}
+      <div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"
+        style={{
+          background: 'rgba(59, 130, 246, 0.03)',
+          transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
+      ></div>
+      
+      {/* Shine effect on hover */}
+      <div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none rounded-2xl"
+        style={{
+          background: 'linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+          transform: 'translateX(-100%)',
+          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateX(100%)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateX(-100%)';
+        }}
+      ></div>
+
+      <div className="relative z-10">
+        {/* Icon container with enhanced styling */}
+        <div 
+          className="relative inline-block mb-6"
+        >
+          <div 
+            className="transform transition-all duration-500 rounded-2xl p-4"
+            style={{ 
+              fontSize: 'clamp(2.5rem, 8vw, 3.5rem)',
+              transform: isHovered ? 'scale(1.2) rotate(10deg)' : 'scale(1) rotate(0deg)',
+              background: isHovered 
+                ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)'
+                : 'transparent',
+              transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+              padding: 'clamp(0.75rem, 2vw, 1rem)'
+            }}
+          >
+            {icon}
+          </div>
+        </div>
+        
+        <h4 
+          className="font-bold transition-all duration-300 mb-4"
+          style={{ 
+            color: isHovered 
+              ? '#2563eb' 
+              : '#111827',
+            fontSize: 'clamp(var(--font-size-xl), 3vw, var(--font-size-2xl))',
+            fontWeight: 'var(--font-weight-bold)',
+            transform: isHovered ? 'translateX(4px)' : 'translateX(0)',
+            lineHeight: '1.3',
+            letterSpacing: '-0.015em',
+            marginBottom: 'var(--space-lg)'
+          }}
+        >
+          {title}
+        </h4>
+        <div className="relative">
+          <p 
+            className="leading-relaxed transition-colors duration-300"
+            style={{ 
+              color: isHovered ? '#374151' : '#4b5563',
+              fontSize: 'clamp(var(--font-size-base), 1.5vw, var(--font-size-lg))',
+              lineHeight: '1.7',
+              letterSpacing: '-0.01em',
+              paddingRight: '2rem',
+              marginBottom: 0
+            }}
+          >
+            {text}
+          </p>
+          
+          {/* Decorative arrow on hover - positioned at end of text */}
+          <div 
+            className="absolute bottom-0 right-0 opacity-0 group-hover:opacity-100 transition-all duration-300 inline-flex items-center"
+            style={{ 
+              color: 'var(--color-info)',
+              transform: 'translateY(0)',
+              marginLeft: '0.5rem'
+            }}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function StatCard({ 
+  number, 
+  label, 
+  icon, 
+  delay, 
+  mounted 
+}: { 
+  number: string; 
+  label: string; 
+  icon: string;
+  delay: string;
+  mounted: boolean;
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div 
+      className={`group relative text-center transition-all duration-500 cursor-pointer overflow-hidden ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+        style={{ 
+          transitionDelay: `${delay}ms`,
+          padding: 'clamp(var(--space-md), 3vw, var(--space-lg))',
+          background: isHovered
+          ? 'rgba(255, 255, 255, 1)'
+          : 'rgba(255, 255, 255, 0.9)',
+          borderRadius: 'var(--space-md)',
+          border: `1px solid ${isHovered ? 'rgba(59, 130, 246, 0.15)' : 'rgba(0, 0, 0, 0.08)'}`,
+          boxShadow: isHovered
+          ? '0 2px 8px -2px rgba(0, 0, 0, 0.06), 0 1px 3px -1px rgba(0, 0, 0, 0.03), 0 0 0 1px rgba(59, 130, 246, 0.08)'
+          : '0 1px 2px 0 rgba(0, 0, 0, 0.04), 0 1px 3px 0 rgba(0, 0, 0, 0.02)',
+          transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      tabIndex={0}
+      role="article"
+      aria-label={`${number} ${label}`}
+    >
+      {/* Gradient overlay on hover */}
+      <div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-md"
+        style={{
+          background: 'rgba(59, 130, 246, 0.03)',
+          transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
+      ></div>
+      
+      <div className="relative z-10">
+        <div 
+          className="text-4xl mb-2 transition-transform duration-300"
+          style={{
+            transform: isHovered ? 'scale(1.15) rotate(5deg)' : 'scale(1) rotate(0deg)',
+            transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        >
+          {icon}
+        </div>
+        <div 
+          className="font-bold mb-1 transition-all duration-300"
+          style={{ 
+            fontSize: 'var(--font-size-3xl)',
+            fontWeight: 'var(--font-weight-bold)',
+            color: 'var(--color-text-primary)',
+            background: 'linear-gradient(135deg, var(--color-info) 0%, #8b5cf6 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            transform: isHovered ? 'scale(1.05)' : 'scale(1)'
+          }}
+        >
+          {number}
+        </div>
+        <div 
+          className="text-sm font-medium transition-colors duration-300"
+          style={{ 
+            color: isHovered ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'
+          }}
+        >
+          {label}
+        </div>
+      </div>
     </div>
   );
 }
