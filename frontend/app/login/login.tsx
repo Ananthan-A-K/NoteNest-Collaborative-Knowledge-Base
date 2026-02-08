@@ -84,6 +84,17 @@ export default function LoginPage() {
             message={errors.general}
             variant="error"
             className="mb-4"
+            onDismiss={() => setErrors((prev) => ({ ...prev, general: undefined }))}
+            action={
+              <button
+                type="button"
+                onClick={() => setErrors((prev) => ({ ...prev, general: undefined }))}
+                className="btn-primary"
+                style={{ fontSize: "var(--font-size-sm)", padding: "var(--space-sm) var(--space-md)" }}
+              >
+                Try again
+              </button>
+            }
           />
         )}
 

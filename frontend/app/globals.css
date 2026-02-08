@@ -764,6 +764,11 @@ article:not([tabindex]):not([onclick]):hover {
   min-height: 300px;
 }
 
+.empty-state.empty-state--compact {
+  min-height: 0;
+  padding: var(--space-md) 0;
+}
+
 .empty-state-content {
   max-width: 400px;
   width: 100%;
@@ -809,8 +814,36 @@ article:not([tabindex]):not([onclick]):hover {
   margin-top: var(--space-sm);
 }
 
+.empty-state-content--compact .empty-state-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.empty-state-content--compact .empty-state-title {
+  font-size: var(--font-size-lg);
+}
+
+.empty-state-content--large {
+  max-width: 480px;
+}
+
+.empty-state-content--large .empty-state-icon {
+  width: 80px;
+  height: 80px;
+}
+
+.empty-state-content--large .empty-state-title {
+  font-size: var(--font-size-2xl);
+}
+
+/* Content enter (when transitioning from loading to content) */
+.state-content-enter {
+  animation: fade-in-up 0.4s ease-out forwards;
+}
+
 /* Error State */
 .error-state {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;

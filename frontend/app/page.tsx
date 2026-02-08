@@ -839,26 +839,18 @@ export default function Home() {
             <div className={`w-full max-w-lg text-center lg:text-left transition-all duration-1000 delay-300 ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
               <div className="inline-block mb-6">
                 <span 
-                  className="inline-flex items-center text-sm font-bold uppercase tracking-wider px-5 py-2.5 rounded-full transition-all duration-300 hover:scale-105"
+                  className="inline-flex items-center rounded-lg transition-all duration-200 hover:opacity-90 border uppercase tracking-wide"
                   style={{ 
-                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%)',
+                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%)',
                     color: 'var(--color-info)',
                     fontSize: 'var(--font-size-xs)',
-                    letterSpacing: '0.12em',
-                    border: '1.5px solid rgba(59, 130, 246, 0.25)',
-                    boxShadow: '0 2px 8px -2px rgba(59, 130, 246, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                    backdropFilter: 'blur(8px)',
-                    fontWeight: 'var(--font-weight-bold)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.18) 0%, rgba(139, 92, 246, 0.18) 100%)';
-                    e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%)';
-                    e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.25)';
-                    e.currentTarget.style.boxShadow = '0 2px 8px -2px rgba(59, 130, 246, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
+                    letterSpacing: '0.1em',
+                    borderColor: 'rgba(59, 130, 246, 0.2)',
+                    fontWeight: 'var(--font-weight-semibold)',
+                    boxShadow: '0 1px 2px rgba(59, 130, 246, 0.06)',
+                    padding: 'var(--space-sm) var(--space-lg)',
+                    minHeight: '2.25rem',
+                    lineHeight: 1.4
                   }}
                 >
                   Built for Everyone
