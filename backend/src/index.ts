@@ -1,11 +1,55 @@
 import express, { Request, Response } from "express";
+import mongoose from "mongoose";
+import cors from "cors";
 import dotenv from "dotenv";
+import { createServer } from "http";
+import { Server as SocketIOServer } from "socket.io";
+import setupSocketHandlers from './socketHandlers';
+import workspaceRoutes from './routes/workspaces';
+import noteRoutes from './routes/notes';
+import userRoutes from './routes/users';
+import { requestLoggingMiddleware } from './middleware/logging';
+import { authenticateToken } from './middleware/auth';
 
 dotenv.config();
 
-const app = express();
+// Validate required environment variables
+const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+if (missingVars.length > 0) {
+  console.error(`❌ Missing required environment variables: ${missingVars.join(', ')}`);
+  console.error('Please create a .env file based on .env.example and set the required variables.');
+  process.exit(1);
+}
 
+const app = express();
+const server = createServer(app);
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: "http://localhost:3001", // Frontend URL
+    methods: ["GET", "POST"]
+  }
+});
+
+app.use(cors());
 app.use(express.json());
+
+// Add request logging middleware
+app.use(requestLoggingMiddleware);
+
+// Connect to MongoDB
+const MONGO_URI = process.env.MONGO_URI!;
+mongoose.connect(MONGO_URI)
+  .then(() => console.log("📊 Connected to MongoDB"))
+  .catch(err => console.error("MongoDB connection error:", err));
+
+// Routes
+app.use('/api/users', userRoutes);
+app.use('/api/workspaces', authenticateToken, workspaceRoutes);
+app.use('/api/notes', authenticateToken, noteRoutes);
+
+// Socket.IO setup
+setupSocketHandlers(io);
 
 app.get("/health", (_req: Request, res: Response) => {
   res.json({
@@ -39,6 +83,6 @@ app.get("/notes", (_req: Request, res: Response) => {
 
 const PORT = process.env.PORT || 5001;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`📘 NoteNest backend running on http://localhost:${PORT}`);
 });
