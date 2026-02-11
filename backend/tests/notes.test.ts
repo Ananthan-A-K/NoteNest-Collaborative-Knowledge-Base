@@ -6,6 +6,9 @@ import User from '../src/models/User';
 import Workspace from '../src/models/Workspace';
 import { authenticateToken } from '../src/middleware/auth';
 
+// Set test environment variables
+process.env.JWT_SECRET = 'test-jwt-secret';
+
 const app = express();
 app.use(express.json());
 app.use('/api/notes', authenticateToken, noteRoutes);

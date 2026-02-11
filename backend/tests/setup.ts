@@ -4,6 +4,10 @@ import mongoose from 'mongoose';
 let mongoServer: MongoMemoryServer;
 
 beforeAll(async () => {
+  // Set test environment variables
+  process.env.JWT_SECRET = 'test-jwt-secret';
+  process.env.MONGO_URI = 'mongodb://localhost:27017/test'; // Not used in tests, but required
+
   mongoServer = await MongoMemoryServer.create();
   const mongoUri = mongoServer.getUri();
   await mongoose.connect(mongoUri);

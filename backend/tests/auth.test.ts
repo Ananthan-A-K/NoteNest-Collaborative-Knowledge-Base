@@ -3,6 +3,9 @@ import express from 'express';
 import userRoutes from '../src/routes/users';
 import { authenticateToken } from '../src/middleware/auth';
 
+// Set test environment variables
+process.env.JWT_SECRET = 'test-jwt-secret';
+
 const app = express();
 app.use(express.json());
 app.use('/api/users', userRoutes);
