@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import { createServer } from "http";
-import { Server as SocketIOServer } from "socket.io";
-import setupSocketHandlers from './socketHandlers';
+// import { Server as SocketIOServer } from "socket.io";
+// import setupSocketHandlers from './socketHandlers';
 import workspaceRoutes from './routes/workspaces';
 import noteRoutes from './routes/notes';
 import userRoutes from './routes/users';
@@ -24,12 +24,15 @@ if (missingVars.length > 0) {
 
 const app = express();
 const server = createServer(app);
+// Socket.IO server removed from monolith
+/*
 const io = new SocketIOServer(server, {
   cors: {
     origin: "http://localhost:3001", // Frontend URL
     methods: ["GET", "POST"]
   }
 });
+*/
 
 app.use(cors());
 app.use(express.json());
@@ -49,7 +52,8 @@ app.use('/api/workspaces', authenticateToken, workspaceRoutes);
 app.use('/api/notes', authenticateToken, noteRoutes);
 
 // Socket.IO setup
-setupSocketHandlers(io);
+// Socket.IO logic moved to socket-service
+// setupSocketHandlers(io);
 
 app.get("/health", (_req: Request, res: Response) => {
   res.json({
