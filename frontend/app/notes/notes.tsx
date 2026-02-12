@@ -155,6 +155,8 @@ export default function NotesPage() {
         return;
       }
 
+      setIsSubmittingCreate(true);
+
       const newNote: Note = {
         id: Date.now(),
         title,
@@ -202,8 +204,35 @@ export default function NotesPage() {
           }
         />
 
-        <main className="flex-1 overflow-auto relative flex justify-center">
-          <div className="max-w-3xl mx-auto p-6">
+        <main
+          className="flex-1 overflow-auto relative flex justify-center"
+          style={{
+            background: "var(--color-background)",
+            backgroundImage:
+              "linear-gradient(135deg, rgba(59,130,246,0.02) 0%, rgba(139,92,246,0.02) 100%)",
+          }}
+        >
+          <div className="max-w-3xl mx-auto p-6 relative z-10">
+            {createSuccessMessage && (
+              <div className="mb-4 text-green-600 font-medium">
+                {createSuccessMessage}
+              </div>
+            )}
+
+            {loadError && (
+              <ErrorState
+                title="Couldn't load notes"
+                message={loadError}
+                variant="error"
+                onDismiss={() => setLoadError(null)}
+                action={
+                  <button className="btn-primary" onClick={retryLoad}>
+                    Try again
+                  </button>
+                }
+              />
+            )}
+
             {isLoading ? (
               <SkeletonList count={4} />
             ) : notes.length === 0 ? (
@@ -212,7 +241,7 @@ export default function NotesPage() {
                 description={
                   isViewer
                     ? "You can view notes only."
-                    : "Start by creating your first note."
+                    : "Get started by creating your first note."
                 }
                 action={
                   canCreateNote && (
@@ -223,45 +252,91 @@ export default function NotesPage() {
                 }
               />
             ) : (
-              <>
-                <h3 className="text-lg font-semibold mb-1">Your Notes</h3>
-                <p className="text-sm mb-6">{notes.length} note(s)</p>
-
-                <ul className="space-y-3">
-                  {notes.map((note) => (
-                    <li
-                      key={note.id}
-                      className="rounded-xl border p-4 shadow-sm hover:shadow-md transition"
+              <ul className="space-y-3">
+                {notes.map((note) => (
+                  <li
+                    key={note.id}
+                    className="rounded-xl border p-4 bg-white shadow-sm"
+                  >
+                    <button
+                      className="w-full text-left"
+                      onClick={() => setViewingNote(note)}
                     >
-                      <button
-                        className="w-full text-left"
-                        onClick={() => setViewingNote(note)}
-                      >
-                        <h4 className="font-semibold truncate">{note.title}</h4>
-                        <p className="text-sm truncate">
-                          {note.content || "No content"}
-                        </p>
-                        <p className="text-xs mt-1 text-muted">
-                          Updated {note.updatedAt}
-                        </p>
-                      </button>
+                      <h4 className="font-semibold truncate">{note.title}</h4>
+                      <p className="text-sm truncate">
+                        {note.content || "No content"}
+                      </p>
+                      <p className="text-xs mt-1 text-gray-500">
+                        Updated {note.updatedAt}
+                      </p>
+                    </button>
 
-                      {canDeleteNote && (
-                        <button
-                          onClick={() => handleDeleteNote(note.id)}
-                          className="text-red-500 text-sm mt-2"
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </>
+                    {canDeleteNote && (
+                      <button
+                        onClick={() => handleDeleteNote(note.id)}
+                        className="text-red-500 text-sm mt-2"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
         </main>
       </div>
+
+      {showCreateModal && canCreateNote && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+            <h2 className="text-lg font-semibold mb-4">New note</h2>
+
+            <form onSubmit={handleSubmitCreate}>
+              <input
+                className="w-full border rounded-lg px-3 py-2 mb-3"
+                placeholder="Title"
+                value={createTitle}
+                onChange={(e) => {
+                  setCreateTitle(e.target.value);
+                  setCreateTitleError("");
+                }}
+              />
+              {createTitleError && (
+                <p className="text-red-500 text-sm mb-2">{createTitleError}</p>
+              )}
+
+              <textarea
+                className="w-full border rounded-lg px-3 py-2 mb-4"
+                placeholder="Content (optional)"
+                rows={4}
+                value={createContent}
+                onChange={(e) => setCreateContent(e.target.value)}
+              />
+
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setShowCreateModal(false)}
+                  disabled={isSubmittingCreate}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className={`btn-primary ${isSubmittingCreate ? "loading" : ""}`}
+                  disabled={isSubmittingCreate}
+                  aria-busy={isSubmittingCreate}
+                >
+                  {isSubmittingCreate ? "Creating…" : "Create note"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
