@@ -63,7 +63,6 @@ export default function NotesPage() {
   const [createTitle, setCreateTitle] = useState("");
   const [createContent, setCreateContent] = useState("");
   const [createTitleError, setCreateTitleError] = useState("");
-  const [isSubmittingCreate, setIsSubmittingCreate] = useState(false);
   const [createSuccessMessage, setCreateSuccessMessage] =
     useState<string | null>(null);
 
@@ -78,8 +77,16 @@ export default function NotesPage() {
         stored.length > 0
           ? stored
           : [
-              { id: 1, title: "Project Overview", content: "A high-level overview of the project." },
-              { id: 2, title: "Meeting Notes", content: "Key points from the last team sync." },
+              {
+                id: 1,
+                title: "Project Overview",
+                content: "A high-level overview of the project.",
+              },
+              {
+                id: 2,
+                title: "Meeting Notes",
+                content: "Key points from the last team sync.",
+              },
             ]
       );
       setIsLoading(false);
@@ -186,8 +193,13 @@ export default function NotesPage() {
         />
 
         <main
-          className="flex-1 overflow-auto flex justify-center"
+          className="flex-1 overflow-auto relative flex justify-center"
           aria-busy={isLoading}
+          style={{
+            background: "var(--color-background)",
+            backgroundImage:
+              "linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, rgba(139, 92, 246, 0.02) 100%)",
+          }}
         >
           <div className="max-w-3xl w-full p-6">
             {createSuccessMessage && (
