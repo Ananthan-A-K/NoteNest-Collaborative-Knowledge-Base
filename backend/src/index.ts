@@ -2,9 +2,11 @@ import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import { createServer } from "http";
 import jwt from 'jsonwebtoken';
 import workspaceRoutes from './routes/workspaces';
 import noteRoutes from './routes/notes';
+import folderRoutes from './routes/folders';
 import userRoutes from './routes/users';
 import groupRoutes from './routes/groups';
 import permissionRoutes from './routes/permissions';
@@ -25,7 +27,7 @@ if (missingVars.length > 0) {
   process.exit(1);
 }
 
-const app = express();
+const app = express(); // Initialize express
 
 app.use(cors());
 app.use(express.json());
@@ -53,6 +55,7 @@ registerEventListeners();
 app.use('/api/users', userRoutes);
 app.use('/api/workspaces', authenticateToken, workspaceRoutes);
 app.use('/api/notes', authenticateToken, noteRoutes);
+app.use('/api/folders', authenticateToken, folderRoutes);
 app.use('/api/groups', authenticateToken, groupRoutes);
 app.use('/api/permissions', authenticateToken, permissionRoutes);
 

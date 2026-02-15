@@ -1,5 +1,3 @@
-"use client";
-
 import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
 import Features from "@/components/landing/Features";
@@ -7,14 +5,15 @@ import SocialProof from "@/components/landing/SocialProof";
 import BestPractices from "@/components/landing/BestPractices";
 import FAQ from "@/components/landing/FAQ";
 import Footer from "@/components/landing/Footer";
-import { useUserRole } from "@/contexts/UserRoleContext";
-import Link from "next/link";
+
+export const metadata = {
+  title: "NoteNest - Collaborative Knowledge Base for Teams",
+  description: "NoteNest is an open-source, team-based knowledge base that allows users to create, organize, and collaborate on notes and documentation in real time.",
+};
 
 export default function Home() {
-  const { isAuthenticated } = useUserRole();
-
   return (
-    <main className="min-h-screen bg-[#F3F0E6] selection:bg-[#FF6B6B]/20">
+    <main className="min-h-screen bg-[#F3F0E6]">
       <Navbar />
       <Hero />
       <Features />
@@ -22,15 +21,6 @@ export default function Home() {
       <BestPractices />
       <FAQ />
       <Footer />
-      
-      {/* 
-        Legacy sections commented out to focus on the new Design Request.
-        These will need to be redesigned to match the new Beige/Black aesthetic.
-      */}
-      
-      {/* <section id="features" className="py-20 bg-gray-50">...</section> */}
-      {/* <section className="py-20 bg-blue-600 text-gray-200"">...</section> */}
-      {/* <footer className="bg-gray-900 text-gray-200" py-12">...</footer> */}
     </main>
   );
 }
