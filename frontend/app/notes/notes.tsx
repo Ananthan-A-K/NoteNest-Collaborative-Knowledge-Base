@@ -458,7 +458,7 @@ setCreateSuccessMessage("Note created successfully.");
                         )) || (
                             <div className="pr-3 flex items-center">
                               <span
-                                className="inline-block w-8 h-8 rounded-lg flex items-center justify-center cursor-not-allowed opacity-50"
+className="inline-block w-8 h-8 rounded-lg flex items-center justify-center cursor-not-allowed opacity-50"
                                 style={{ color: "var(--color-text-muted)" }}
                                 title={DELETE_RESTRICTED_TITLE}
                                 aria-hidden
