@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Minus } from "lucide-react";
-import { Section } from "@/components/ui";
+import { motion } from "framer-motion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Section, Container, LayoutWrapper } from "@/components/ui";
 import { cn } from "@/lib/utils";
-
-// ============================================================================
-// FAQ Component — Production Layout (locked from 1440px tuning session)
-// ============================================================================
 
 const faqs = [
   {
@@ -33,53 +33,12 @@ const faqs = [
   }
 ];
 
-const FAQItem = ({ item, isOpen, onClick }: { item: any, isOpen: boolean, onClick: () => void }) => {
-  return (
-    <div className="border-b border-black/5 last:border-0">
-      <button
-        onClick={onClick}
-        className="w-full flex items-center justify-center py-6 text-left group gap-4"
-      >
-        <span className={cn(
-          "text-lg md:text-xl font-serif font-bold transition-colors flex-grow",
-          isOpen ? "text-brand-dark" : "text-brand-dark/70 group-hover:text-brand-dark"
-        )}>
-          {item.question}
-        </span>
-        <div className={cn(
-          "flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300",
-          isOpen ? "bg-brand-dark border-brand-dark text-white rotate-180" : "bg-white border-black/10 text-brand-dark group-hover:border-brand-dark"
-        )}>
-          {isOpen ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-        </div>
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden"
-          >
-            <p className="pb-6 text-base md:text-lg text-brand-dark/70 leading-relaxed font-medium">
-              {item.answer}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
-
 const FAQ = () => {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
-
   return (
     <Section
       spacing="large"
       background="bg-white"
-    // Section: default, minHeight 0 - no overrides needed based on defaults
+      style={{ marginTop: '5vh' }}
     >
       {/* Grid: gap 100px */}
       <div
@@ -87,59 +46,70 @@ const FAQ = () => {
         style={{ gap: '100px' }}
       >
         {/* Header — leftX: 20, leftY: 20, leftScale: 1.12 */}
-        <div
-          className="lg:col-span-4"
-          style={{ transform: 'translate(20px, 20px) scale(1.12)', transformOrigin: 'center center' }}
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="sticky top-32"
-          >
-            {/* Badge — badgeX: 20, badgeY: 0 */}
-            <div
-              className="inline-block px-4 py-1.5 rounded-full border border-black/10 bg-brand-beige/50 text-sm font-bold uppercase tracking-wider mb-6"
-              style={{ transform: 'translateX(20px)' }}
-            >
-              Support
+        <div className="lg:col-span-4 md:transform-gpu" style={{ transform: 'translate(20px, 20px) scale(1.12)', transformOrigin: 'center center' }}>
+          <LayoutWrapper id="faq-header" defaultX={20} defaultY={20} defaultScale={1.12} style={{ transformOrigin: 'center center' }}>
+            <div>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="sticky top-32"
+              >
+                {/* Badge — badgeX: 20, badgeY: 0 */}
+                <div
+                  className="inline-block px-4 py-1.5 rounded-full border border-black/10 bg-brand-beige/50 text-sm font-bold uppercase tracking-wider mb-6"
+                  style={{ transform: 'translateX(20px)' }}
+                >
+                  Support
+                </div>
+                {/* Heading — headingX: 20, headingY: 0 */}
+                <h2
+                  className="text-4xl md:text-5xl font-serif font-black text-brand-dark mb-6"
+                  style={{ transform: 'translateX(20px)' }}
+                >
+                  Frequently Asked Questions
+                </h2>
+                {/* Subtitle — subtitleX: 20, subtitleY: 0 */}
+                <p
+                  className="text-brand-dark/60 text-lg font-medium mb-8"
+                  style={{ transform: 'translateX(20px)' }}
+                >
+                  Can't find the answer you're looking for? Join our <a href="#" className="text-brand-dark underline decoration-2 underline-offset-4 hover:opacity-70 transition-opacity">Discord community</a>.
+                </p>
+              </motion.div>
             </div>
-            {/* Heading — headingX: 20, headingY: 0 */}
-            <h2
-              className="text-4xl md:text-5xl font-serif font-black text-brand-dark mb-6"
-              style={{ transform: 'translateX(20px)' }}
-            >
-              Frequently Asked Questions
-            </h2>
-            {/* Subtitle — subtitleX: 20, subtitleY: 0 */}
-            <p
-              className="text-brand-dark/60 text-lg font-medium mb-8"
-              style={{ transform: 'translateX(20px)' }}
-            >
-              Can't find the answer you're looking for? Join our <a href="#" className="text-brand-dark underline decoration-2 underline-offset-4 hover:opacity-70 transition-opacity">Discord community</a>.
-            </p>
-          </motion.div>
+          </LayoutWrapper>
         </div>
 
         {/* List — rightX: 17 */}
-        <div
-          className="lg:col-span-8"
-          style={{ transform: 'translateX(17px)' }}
-        >
-          {/* FAQ Card — faqCardPadding: 48 */}
-          <div
-            className="bg-[#F9F9F9] rounded-3xl border border-black/5"
-            style={{ padding: '48px' }}
-          >
-            {faqs.map((item, index) => (
-              <FAQItem
-                key={index}
-                item={item}
-                isOpen={openIndex === index}
-                onClick={() => setOpenIndex(index === openIndex ? null : index)}
-              />
-            ))}
-          </div>
+        <div className="lg:col-span-8 md:transform-gpu" style={{ transform: 'translateX(17px)' }}>
+          <LayoutWrapper id="faq-list" defaultX={17}>
+            <div
+            >
+              {/* FAQ Card — faqCardPadding: 48 */}
+              <div
+                className="bg-[#F9F9F9] rounded-3xl border border-black/5"
+                style={{ padding: '48px' }}
+              >
+                <Accordion type="single" collapsible className="w-full space-y-4">
+                  {faqs.map((faq, i) => (
+                    <AccordionItem
+                      key={i}
+                      value={`item-${i}`}
+                      className="border border-black/5 bg-white rounded-2xl px-6 data-[state=open]:pb-4 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+                    >
+                      <AccordionTrigger className="text-lg font-bold text-brand-dark hover:no-underline hover:text-brand-accent py-6 text-left">
+                        {faq.question}
+                      </AccordionTrigger>
+                      <AccordionContent className="text-base text-brand-dark/70 leading-relaxed pb-4">
+                        {faq.answer}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </div>
+            </div>
+          </LayoutWrapper>
         </div>
       </div>
     </Section>

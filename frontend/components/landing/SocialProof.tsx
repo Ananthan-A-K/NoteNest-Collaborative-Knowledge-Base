@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Users, Sparkles, Zap } from "lucide-react";
-import { Section, Container } from "@/components/ui";
+import { Section, Container, LayoutWrapper } from "@/components/ui";
 
 
 // SocialProof Component — Production Layout (locked from 1440px tuning session)
@@ -43,18 +43,23 @@ const SocialProof = () => {
         </div>
 
         {/* Logo Ticker — tickerGap: 96px */}
-        <div className="relative w-full overflow-hidden mask-linear-fade">
-          <div
-            className="flex items-center w-max animate-scroll"
-            style={{ gap: '96px' }}
-          >
-            {[...LOGOS, ...LOGOS, ...LOGOS].map((logo, i) => (
-              <div key={i} className="flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
-                <span className="text-xl md:text-2xl font-black text-gray-800 font-serif">{logo.name}</span>
+        <Container>
+          <LayoutWrapper id="social-proof-content" defaultY={0}>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
+              <p className="text-xl md:text-2xl font-serif font-bold text-center md:text-left text-brand-dark/80">
+                Trusted by teams at
+              </p>
+              <div className="flex flex-wrap justify-center gap-8 md:gap-12 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                {/* Mock Logos */}
+                {['Acme Corp', 'GlobalTech', 'Nebula', 'Circle', 'FoxRun'].map((company) => (
+                  <span key={company} className="text-xl md:text-2xl font-bold font-serif text-brand-dark">
+                    {company}
+                  </span>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          </LayoutWrapper>
+        </Container>
 
         {/* Stats Grid — statsGap: 32px */}
         <div

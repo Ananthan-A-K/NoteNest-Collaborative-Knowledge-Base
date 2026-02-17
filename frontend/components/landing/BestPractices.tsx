@@ -10,7 +10,7 @@ import {
   Code,
   AlignLeft,
 } from "lucide-react";
-import { Section } from "@/components/ui";
+import { Section, Container, LayoutWrapper } from "@/components/ui";
 
 const principles = [
   {
@@ -99,119 +99,134 @@ const BestPractices = () => {
         minHeight: '650px'
       }}
     >
-      {/* Grid: gap 128px */}
+
       <div
         className="grid lg:grid-cols-2 items-center"
         style={{ gap: '128px' }}
       >
         {/* Left: Content & Principles — translate(50px, -40px) scale(1.12) */}
-        <div
-          className="space-y-10"
-          style={{ transform: 'translate(50px, -40px) scale(1.12)', transformOrigin: 'center center' }}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-block px-4 py-1.5 rounded-full border border-black/10 bg-white/50 backdrop-blur-sm text-sm font-bold uppercase tracking-wider"
+        <div className="md:transform-gpu" style={{ transform: 'translate(50px, -40px) scale(1.12)', transformOrigin: 'center center' }}>
+          <LayoutWrapper
+            id="best-practices-left"
+            defaultX={50}
+            defaultY={-40}
+            defaultScale={1.12}
+            style={{ transformOrigin: 'center center' }}
           >
-            NoteNest Methodology
-          </motion.div>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-serif font-black text-brand-dark leading-tight"
-          >
-            Write notes that <br />
-            <span className="text-brand-accent">actually get read.</span>
-          </motion.h2>
-
-          {/* Principles Grid — translateY(32px), gap 24px */}
-          <div
-            className="grid"
-            style={{
-              gap: '24px',
-              transform: 'translateY(32px)'
-            }}
-          >
-            {principles.map((p, i) => (
+            <div
+              className="space-y-10"
+            >
               <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="flex items-start gap-4 p-4 rounded-2xl hover:bg-white/50 transition-colors duration-300"
+                className="inline-block px-4 py-1.5 rounded-full border border-black/10 bg-white/50 backdrop-blur-sm text-sm font-bold uppercase tracking-wider"
               >
-                <div className="w-10 h-10 rounded-full bg-brand-dark text-white flex items-center justify-center shrink-0">
-                  <p.icon className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-bold text-brand-dark mb-1">{p.title}</h4>
-                  <p className="text-brand-dark/70 text-sm font-medium">{p.description}</p>
-                </div>
+                NoteNest Methodology
               </motion.div>
-            ))}
-          </div>
+
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-4xl md:text-5xl font-serif font-black text-brand-dark leading-tight"
+              >
+                Write notes that <br />
+                <span className="text-brand-accent">actually get read.</span>
+              </motion.h2>
+
+              {/* Principles Grid — translateY(32px), gap 24px */}
+              <div
+                className="grid"
+                style={{
+                  gap: '24px',
+                  transform: 'translateY(32px)'
+                }}
+              >
+                {principles.map((p, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="flex items-start gap-4 p-4 rounded-2xl hover:bg-white/50 transition-colors duration-300"
+                    style={{ paddingLeft: `${i * 24 + 16}px` }}
+                  >
+                    <div className="w-10 h-10 rounded-full bg-brand-dark text-white flex items-center justify-center shrink-0">
+                      <p.icon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold text-brand-dark mb-1">{p.title}</h4>
+                      <p className="text-brand-dark/70 text-sm font-medium">{p.description}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </LayoutWrapper>
         </div>
 
         {/* Right: Interactive Comparison — translate(76px, 16px) */}
-        <div
-          className="relative"
-          style={{ transform: 'translate(76px, 16px)' }}
-        >
-          {/* Toggle Switch */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex bg-brand-dark rounded-full p-1 shadow-xl">
-            <button
-              onClick={() => setActiveView('bad')}
-              className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeView === 'bad' ? 'bg-white text-brand-dark' : 'text-white/60 hover:text-white'}`}
-            >
-              Weak
-            </button>
-            <button
-              onClick={() => setActiveView('good')}
-              className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeView === 'good' ? 'bg-white text-brand-dark' : 'text-white/60 hover:text-white'}`}
-            >
-              Strong
-            </button>
-          </div>
-
-          <div
-            className="relative w-full mx-auto perspective-1000 group"
-            style={{
-              maxWidth: '500px',
-              height: '600px',
-              transform: 'translate(6px, -2px) scale(1)', // cardX: 6, cardY: -2
-              transformOrigin: 'center center'
-            }}
+        <div className="md:transform-gpu">
+          <LayoutWrapper
+            id="best-practices-right"
+            defaultX={200}
+            defaultY={0}
           >
-            {/* Background Decorative Element */}
-            <div className="absolute inset-0 bg-brand-dark rounded-[3rem] rotate-3 opacity-10 scale-95 group-hover:rotate-6 transition-transform duration-500 will-change-transform" />
-
-            <div className="relative h-full bg-white rounded-[2.5rem] shadow-2xl p-2 border-4 border-white overflow-hidden">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeView}
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  transition={{ duration: 0.3 }}
-                  className="h-full w-full"
+            <div
+              className="relative"
+            >
+              {/* Toggle Switch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex bg-brand-dark rounded-full p-1 shadow-xl">
+                <button
+                  onClick={() => setActiveView('bad')}
+                  className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeView === 'bad' ? 'bg-white text-brand-dark' : 'text-white/60 hover:text-white'}`}
                 >
-                  {activeView === 'bad'
-                    ? <BadNote textStyle={{ transform: 'none' }} /> // badTextX: 0, badTextY: 0
-                    : <GoodNote textStyle={{ transform: 'translate(20px, 20px)' }} /> // goodTextX: 20, goodTextY: 20
-                  }
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </div>
+                  Weak
+                </button>
+                <button
+                  onClick={() => setActiveView('good')}
+                  className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeView === 'good' ? 'bg-white text-brand-dark' : 'text-white/60 hover:text-white'}`}
+                >
+                  Strong
+                </button>
+              </div>
 
-          <div className="text-center mt-8 text-sm font-bold text-brand-dark/40 uppercase tracking-widest animate-pulse">
-            Toggle to compare
-          </div>
+              <div
+                className="relative w-full mx-auto perspective-1000 group"
+                style={{
+                  height: '600px',
+                  transformOrigin: 'center center'
+                }}
+              >
+                {/* Background Decorative Element */}
+                <div className="absolute inset-0 bg-brand-dark rounded-[3rem] rotate-3 opacity-10 scale-95 group-hover:rotate-6 transition-transform duration-500 will-change-transform" />
+
+                <div className="relative h-full bg-white rounded-[2.5rem] shadow-2xl p-2 border-4 border-white overflow-hidden">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeView}
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.3 }}
+                      className="h-full w-full"
+                    >
+                      {activeView === 'bad'
+                        ? <BadNote textStyle={{ transform: 'none' }} /> // badTextX: 0, badTextY: 0
+                        : <GoodNote textStyle={{ transform: 'translate(20px, 20px)' }} /> // goodTextX: 20, goodTextY: 20
+                      }
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              </div>
+
+              <div className="text-center mt-8 text-sm font-bold text-brand-dark/40 uppercase tracking-widest animate-pulse">
+                Toggle to compare
+              </div>
+            </div>
+          </LayoutWrapper>
         </div>
       </div>
     </Section>
