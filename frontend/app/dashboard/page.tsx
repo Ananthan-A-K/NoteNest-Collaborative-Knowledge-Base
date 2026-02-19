@@ -10,7 +10,7 @@ import RouteGuard from "@/components/RouteGuard";
 const CREATE_RESTRICTED_TITLE =
   "You need Editor or Admin role to create notes.";
 
-/* ✅ NEW — Time Ago Formatter */
+/* ✅ Time Ago Formatter */
 function getTimeAgo(dateString: string) {
   const now = new Date();
   const date = new Date(dateString);
@@ -77,7 +77,7 @@ export default function DashboardPage() {
   const cardStyle = {
     background: "#0b0b0b",
     border: "1px solid #1f1f1f",
-    boxShadow: "0 10px 40px rgba(0,0,0,0.9)",
+    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.9)",
   };
 
   return (
@@ -106,8 +106,8 @@ export default function DashboardPage() {
                   className="text-sm mb-3"
                   style={{ color: "var(--color-text-secondary)" }}
                 >
-                  This is your NoteNest dashboard. Get started by creating your first note
-                  and organizing your team's knowledge.
+                  This is your NoteNest dashboard. Get started by creating your
+                  first note and organizing your team's knowledge.
                 </p>
               </section>
 
@@ -154,6 +154,13 @@ export default function DashboardPage() {
                   {recentNotes.map((note) => (
                     <div
                       key={note.id}
+                      className="
+                        transition-all duration-200 ease-in-out
+                        hover:scale-[1.02]
+                        hover:shadow-lg
+                        hover:border-gray-500/40
+                        cursor-pointer
+                      "
                       style={{
                         padding: 16,
                         border: "1px solid #222",
@@ -166,18 +173,22 @@ export default function DashboardPage() {
                         {note.title}
                       </div>
 
-                      {/* ✅ Colored Badge Instead of Plain Text */}
-                      <div className="mt-2">
-                        <span
-                          className={`px-2 py-1 text-xs font-medium rounded-full ${getWorkspaceBadgeClass(
-                            note.workspace
-                          )}`}
-                        >
-                          {note.workspace}
-                        </span>
+                      {/* Colored Workspace Text */}
+                      <div
+                        className={`text-sm font-medium ${
+                          note.workspace === "Team"
+                            ? "text-purple-400"
+                            : note.workspace === "Personal"
+                            ? "text-blue-400"
+                            : note.workspace === "Product"
+                            ? "text-green-400"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        {note.workspace}
                       </div>
 
-                      <div style={{ color: "#666", fontSize: 12, marginTop: 6 }}>
+                      <div style={{ color: "#666", fontSize: 12 }}>
                         {getTimeAgo(note.createdAt)}
                       </div>
                     </div>
