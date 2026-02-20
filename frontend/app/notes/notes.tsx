@@ -36,17 +36,26 @@ function saveNotesToStorage(notes: Note[]) {
   }
 }
 
-function formatRelativeTime(timestamp: number) {
+function formatRelativeTime(timestamp?: number) {
+  if (!timestamp || Number.isNaN(timestamp)) {
+    return "Created recently";
+  }
+
   const diff = Date.now() - timestamp;
+
+  if (Number.isNaN(diff) || diff < 0) {
+    return "Created recently";
+  }
+
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(minutes / 60);
 
   if (minutes < 1) return "Created just now";
   if (minutes < 60)
     return `Created ${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+
   return `Created ${hours} hour${hours > 1 ? "s" : ""} ago`;
 }
-
 export default function NotesPage() {
   const searchParams = useSearchParams();
   const search = searchParams.get("search") || "";
@@ -92,19 +101,19 @@ export default function NotesPage() {
         stored.length > 0
           ? stored
           : [
-              {
-                id: 1,
-                title: "Project Overview",
-                content: "A high-level overview of the project.",
-                createdAt: Date.now() - 1000 * 60 * 60, // 1 hour ago
-              },
-              {
-                id: 2,
-                title: "Meeting Notes",
-                content: "Key points from the last team sync.",
-                createdAt: Date.now() - 1000 * 60 * 5, // 5 minutes ago
-              },
-            ]
+            {
+              id: 1,
+              title: "Project Overview",
+              content: "A high-level overview of the project.",
+              createdAt: Date.now() - 1000 * 60 * 60, // 1 hour ago
+            },
+            {
+              id: 2,
+              title: "Meeting Notes",
+              content: "Key points from the last team sync.",
+              createdAt: Date.now() - 1000 * 60 * 5, // 5 minutes ago
+            },
+          ]
       );
       setIsLoading(false);
     }, 600);
@@ -212,26 +221,27 @@ export default function NotesPage() {
     <div className="flex">
       <Sidebar />
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header
-          title="Notes"
-          showSearch
-          action={
-            canCreateNote ? (
-              <button
-                ref={createButtonRef}
-                type="button"
-                onClick={handleCreateNote}
-                className="btn-primary"
-              >
-                Create Note
-              </button>
-            ) : null
-          }
-        />
+      <div className="flex-1 flex flex-col min-w-0">        <Header
+        title="Notes"
+        showSearch
+        action={
+          canCreateNote ? (
+            <button
+              ref={createButtonRef}
+              type="button"
+              onClick={handleCreateNote}
+              className="btn-primary"
+            >
+              Create Note
+            </button>
+          ) : null
+        }
+      />
 
-        <main className="flex-1 overflow-auto" aria-busy={isLoading}>
-          <div className="max-w-3xl mx-auto p-6">
+        <main
+          className="flex-1 overflow-y-auto"
+          aria-busy={isLoading}
+        >         <div className="max-w-3xl mx-auto p-6">
             {createSuccessMessage && (
               <div
                 role="status"
@@ -398,8 +408,8 @@ export default function NotesPage() {
                   {isSubmitting
                     ? "Saving..."
                     : editingNoteId !== null
-                    ? "Update note"
-                    : "Create note"}
+                      ? "Update note"
+                      : "Create note"}
                 </button>
               </div>
             </form>

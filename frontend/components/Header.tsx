@@ -35,12 +35,13 @@ export default function Header({
         Skip to main content
       </a>
 
-      <header
-        className="flex items-center gap-4 border-b px-6 py-4"
-        role="banner"
-        style={{
-          background: "#000000",
-          borderColor: "rgba(255,255,255,0.08)",
+<header
+  className="sticky top-0 z-40 flex items-center gap-4 border-b px-6 py-4"
+  role="banner"
+  style={{
+    background: "#000000",
+    borderColor: "rgba(255,255,255,0.08)",
+  
           color: "#FFFFFF",
         }}
       >

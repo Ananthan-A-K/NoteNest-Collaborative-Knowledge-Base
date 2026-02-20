@@ -45,13 +45,21 @@ export default function EmptyState({
             {icon}
           </div>
         )}
-        <h3 className="empty-state-title">{title}</h3>
-        {description && (
-          <p className="empty-state-description">{description}</p>
-        )}
-        {action && (
-          <div className="empty-state-action">{action}</div>
-        )}
+       <h3
+  className="empty-state-title"
+  style={{ color: "var(--color-text-primary)" }}
+>
+  {title}
+</h3>
+
+{description && (
+  <p
+    className="empty-state-description"
+    style={{ color: "var(--color-text-secondary)" }}
+  >
+    {description}
+  </p>
+)}
         {secondaryAction && (
           <div
             className="empty-state-action mt-2"
