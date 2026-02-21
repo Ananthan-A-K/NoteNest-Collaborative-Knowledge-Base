@@ -11,10 +11,13 @@ const CREATE_RESTRICTED_TITLE =
   "You need Editor or Admin role to create notes.";
 
 /* ✅ Time Ago Formatter */
-function getTimeAgo(dateString: string) {
-  const now = new Date();
-  const date = new Date(dateString);
+function getTimeAgo(value: string | number | undefined) {
+  if (!value) return "Recently";
 
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return "Recently";
+
+  const now = new Date();
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
   if (seconds < 10) return "Just now";
@@ -30,9 +33,33 @@ function getTimeAgo(dateString: string) {
   return `${days} days ago`;
 }
 
-export default function DashboardPage() {
-  const { canCreateNote } = usePermissions();
+function loadNotesSafely() {
+  if (typeof window === "undefined") return [];
 
+  try {
+    const raw = localStorage.getItem("notenest-notes");
+    if (!raw) return [];
+
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.warn("Invalid notes data in localStorage", error);
+    return [];
+  }
+}
+
+export default function DashboardPage() {
+const permissions = usePermissions();
+const canCreateNote = Boolean(permissions?.canCreateNote);
+const [notes, setNotes] = useState<any[]>([]);
+const recentNotes = notes
+  .slice()
+  .sort(
+    (a, b) =>
+      new Date(b.createdAt).getTime() -
+      new Date(a.createdAt).getTime()
+  )
+  .slice(0, 5);
   /* ✅ Badge Color Logic (NEW) */
   const getWorkspaceBadgeClass = (workspace: string) => {
     switch (workspace) {
@@ -48,27 +75,7 @@ export default function DashboardPage() {
   };
 
   /* ✅ UPDATED — Use timestamps instead of text */
-  const [recentNotes] = useState([
-    {
-      id: 1,
-      title: "Project Plan",
-      workspace: "Team",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 2,
-      title: "Meeting Notes",
-      workspace: "Personal",
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: 3,
-      title: "Design Ideas",
-      workspace: "Product",
-      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-  ]);
-
+ 
   useEffect(() => {
     document.body.style.background = "#000";
     document.documentElement.style.background = "#000";
@@ -79,9 +86,13 @@ export default function DashboardPage() {
     border: "1px solid #1f1f1f",
     boxShadow: "0 10px 40px rgba(0, 0, 0, 0.9)",
   };
+useEffect(() => {
+  const safeNotes = loadNotesSafely();
+  setNotes(safeNotes);
+}, []);
 
   return (
-    <RouteGuard requireAuth>
+  
       <div style={{ background: "#000", minHeight: "100vh", display: "flex" }}>
         <Sidebar />
 
@@ -215,19 +226,9 @@ export default function DashboardPage() {
                           {note.title}
                         </div>
 
-                        <div
-                          className={`text-sm font-medium ${
-                            note.workspace === "Team"
-                              ? "text-purple-400"
-                              : note.workspace === "Personal"
-                              ? "text-blue-400"
-                              : note.workspace === "Product"
-                              ? "text-green-400"
-                              : "text-gray-400"
-                          }`}
-                        >
-                          {note.workspace}
-                        </div>
+                       <div className="text-sm font-medium text-gray-400">
+  {note.workspace ?? "Personal"}
+</div>
 
                         <div style={{ color: "#666", fontSize: 12 }}>
                           {getTimeAgo(note.createdAt)}
@@ -242,6 +243,6 @@ export default function DashboardPage() {
           </main>
         </div>
       </div>
-    </RouteGuard>
+   
   );
 }
