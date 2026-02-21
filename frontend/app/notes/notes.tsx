@@ -42,7 +42,6 @@ function formatRelativeTime(timestamp?: number) {
   }
 
   const diff = Date.now() - timestamp;
-
   if (Number.isNaN(diff) || diff < 0) {
     return "Created recently";
   }
@@ -56,15 +55,17 @@ function formatRelativeTime(timestamp?: number) {
 
   return `Created ${hours} hour${hours > 1 ? "s" : ""} ago`;
 }
+
 export default function NotesPage() {
   const searchParams = useSearchParams();
   const search = searchParams.get("search") || "";
-  const { canCreateNote, isViewer } = usePermissions();
-
+const { canCreateNote, isViewer } = usePermissions();
   const [notes, setNotes] = useState<Note[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] =
+    useState<"newest" | "oldest" | "az">("newest");
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createTitle, setCreateTitle] = useState("");
@@ -101,19 +102,19 @@ export default function NotesPage() {
         stored.length > 0
           ? stored
           : [
-            {
-              id: 1,
-              title: "Project Overview",
-              content: "A high-level overview of the project.",
-              createdAt: Date.now() - 1000 * 60 * 60, // 1 hour ago
-            },
-            {
-              id: 2,
-              title: "Meeting Notes",
-              content: "Key points from the last team sync.",
-              createdAt: Date.now() - 1000 * 60 * 5, // 5 minutes ago
-            },
-          ]
+              {
+                id: 1,
+                title: "Project Overview",
+                content: "A high-level overview of the project.",
+                createdAt: Date.now() - 1000 * 60 * 60,
+              },
+              {
+                id: 2,
+                title: "Meeting Notes",
+                content: "Key points from the last team sync.",
+                createdAt: Date.now() - 1000 * 60 * 5,
+              },
+            ]
       );
       setIsLoading(false);
     }, 600);
@@ -140,6 +141,28 @@ export default function NotesPage() {
       note.content?.toLowerCase().includes(query)
     );
   });
+
+ /* ---------- Sorted notes ---------- */
+const sortedNotes = [...filteredNotes].sort((a, b) => {
+  const aTime = a.createdAt ?? a.id;
+  const bTime = b.createdAt ?? b.id;
+
+  if (sortBy === "newest") {
+    if (bTime !== aTime) return bTime - aTime;
+    return b.id - a.id; // tie-breaker
+  }
+
+  if (sortBy === "oldest") {
+    if (aTime !== bTime) return aTime - bTime;
+    return a.id - b.id; // tie-breaker
+  }
+
+  if (sortBy === "az") {
+    return a.title.localeCompare(b.title);
+  }
+
+  return 0;
+});
 
   /* ---------- Create Note ---------- */
   const handleCreateNote = useCallback(() => {
@@ -189,13 +212,15 @@ export default function NotesPage() {
           )
         );
       } else {
-        const newNote: Note = {
-          id: Date.now(),
-          title,
-          content: createContent.trim() || undefined,
-          createdAt: Date.now(),
-        };
-        setNotes((prev) => [...prev, newNote]);
+        setNotes((prev) => [
+          ...prev,
+          {
+            id: Date.now(),
+            title,
+            content: createContent.trim() || undefined,
+            createdAt: Date.now(),
+          },
+        ]);
       }
 
       setCreateSuccessMessage(
@@ -217,79 +242,93 @@ export default function NotesPage() {
     [createTitle, createContent, editingNoteId]
   );
 
-  return (
+ return (
+  <>
     <div className="flex">
       <Sidebar />
 
-      <div className="flex-1 flex flex-col min-w-0">        <Header
-        title="Notes"
-        showSearch
-        action={
-          canCreateNote ? (
-            <button
-              ref={createButtonRef}
-              type="button"
-              onClick={handleCreateNote}
-              className="btn-primary"
-            >
-              Create Note
-            </button>
-          ) : null
-        }
-      />
+      <div className="flex-1 flex flex-col min-w-0">
+        <Header
+          title="Notes"
+          showSearch
+          action={
+            canCreateNote ? (
+             <button
+  ref={createButtonRef}
+  type="button"
+  onClick={handleCreateNote}
+  className="
+    px-4 py-2
+    rounded-lg
+    bg-blue-600
+    text-white
+    font-semibold
+    shadow-md
+    hover:bg-blue-700
+    hover:shadow-lg
+    focus:outline-none
+    focus:ring-2
+    focus:ring-blue-400
+    transition
+  "
+>
+  + Create Note
+</button>
+            ) : null
+          }
+        />
 
-        <main
-          className="flex-1 overflow-y-auto"
-          aria-busy={isLoading}
-        >         <div className="max-w-3xl mx-auto p-6">
-            {createSuccessMessage && (
-              <div
-                role="status"
-                aria-live="polite"
-                className="mb-4 text-green-600 font-medium"
-              >
-                {createSuccessMessage}
-              </div>
-            )}
+        <main className="flex-1 overflow-y-auto" aria-busy={isLoading}>
+          <div className="max-w-3xl mx-auto p-6">
+            {/* Sort Dropdown */}
+            <div className="mb-4 flex justify-end">
+             <select
+  value={sortBy}
+  onChange={(e) =>
+    setSortBy(e.target.value as "newest" | "oldest" | "az")
+  }
+  aria-label="Sort notes"
+  className="
+    bg-white
+    text-slate-800
+    border
+    border-slate-300
+    rounded-lg
+    px-3
+    py-2
+    text-sm
+    shadow-md
+    hover:border-blue-400
+    focus:outline-none
+    focus:ring-2
+    focus:ring-blue-400
+    focus:border-blue-400
+    transition
+  "
+>
+  <div className="mb-4 flex justify-end items-center gap-2">
+  <span className="text-sm text-slate-300">
+    Sort by
+  </span>
 
-            {loadError && (
-              <ErrorState
-                title="Unable to load notes. Please try again."
-                message={loadError}
-                variant="error"
-              />
-            )}
+  <select>...</select>
+</div>
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+                <option value="az">A–Z</option>
+              </select>
+            </div>
 
             {isLoading ? (
               <SkeletonList count={4} />
-            ) : notes.length === 0 ? (
-              <EmptyState
-                title="No notes yet"
-                description={
-                  isViewer
-                    ? "You don’t have permission to create notes, but you can view existing ones."
-                    : "You don’t have any notes yet. Create your first note to get started."
-                }
-                action={
-                  canCreateNote && (
-                    <button
-                      type="button"
-                      onClick={handleCreateNote}
-                      className="btn-primary"
-                    >
-                      Create your first note
-                    </button>
-                  )
-                }
-              />
-            ) : filteredNotes.length === 0 ? (
+            ) : sortedNotes.length === 0 ? (
               <EmptyState
                 title="No results found"
                 description="Try adjusting your search keywords."
               />
             ) : (
               <ul className="space-y-3">
-                {filteredNotes.map((note) => (
+                {sortedNotes.map((note) => (
                   <li
                     key={note.id}
                     className="rounded-xl border p-4 bg-white shadow-sm flex justify-between gap-4"
@@ -309,19 +348,14 @@ export default function NotesPage() {
                         <button
                           type="button"
                           onClick={() => handleEditNote(note)}
-                          aria-label="Edit note"
-                          title="Edit note"
-                          className="text-blue-600 hover:text-blue-700"
+                          className="text-blue-600"
                         >
                           ✏️
                         </button>
-
                         <button
                           type="button"
                           onClick={() => setNoteToDelete(note)}
-                          aria-label="Delete note"
-                          title="Delete note"
-                          className="text-red-600 hover:text-red-700"
+                          className="text-red-600"
                         >
                           🗑️
                         </button>
@@ -334,138 +368,87 @@ export default function NotesPage() {
           </div>
         </main>
       </div>
+    </div>
 
-      {/* Create / Edit Modal */}
-      {showCreateModal && canCreateNote && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="new-note-title"
-          className="fixed inset-0 bg-black/50 flex items-center justify-center"
-        >
-          <div className="relative bg-white p-6 rounded w-full max-w-md">
-            <button
-              type="button"
-              onClick={() => {
-                setShowCreateModal(false);
-                createButtonRef.current?.focus();
+    {/* Create / Edit Modal */}
+    {showCreateModal && (
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="note-modal-title"
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      >
+        <div className="relative bg-white p-6 rounded w-full max-w-md">
+          <button
+            type="button"
+            onClick={() => setShowCreateModal(false)}
+            aria-label="Close dialog"
+            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+          >
+            ✕
+          </button>
+
+          <h2 id="note-modal-title" className="text-xl font-semibold mb-4">
+            {editingNoteId !== null ? "Edit note" : "New note"}
+          </h2>
+
+          <form onSubmit={handleSubmitCreate} noValidate>
+            <input
+              type="text"
+              autoFocus
+              value={createTitle}
+              onChange={(e) => {
+                setCreateTitle(e.target.value);
+                setCreateTitleError("");
               }}
-              aria-label="Close dialog"
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-            >
-              ✕
-            </button>
+              className="w-full border p-2 mb-2"
+              placeholder="Title"
+            />
 
-            <h2 id="new-note-title" className="text-xl font-semibold mb-4">
-              {editingNoteId !== null ? "Edit note" : "New note"}
-            </h2>
-
-            <form onSubmit={handleSubmitCreate} noValidate>
-              <input
-                type="text"
-                autoFocus
-                value={createTitle}
-                onChange={(e) => {
-                  setCreateTitle(e.target.value);
-                  setCreateTitleError("");
-                }}
-                className="w-full border p-2 mb-2"
-                placeholder="Title"
-              />
-
-              <p className="text-xs text-gray-500 mb-2">
-                {createTitle.length} / {TITLE_MAX_LENGTH} characters
-              </p>
-
-              {createTitleError && (
-                <p className="text-sm text-red-600 mb-2">
-                  {createTitleError}
-                </p>
-              )}
-
-              <textarea
-                value={createContent}
-                onChange={(e) => setCreateContent(e.target.value)}
-                className="w-full border p-2 mb-4"
-                placeholder="Content (optional)"
-              />
-
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCreateModal(false);
-                    createButtonRef.current?.focus();
-                  }}
-                  className="btn-secondary"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={isSubmitting || createTitle.trim().length === 0}
-                >
-                  {isSubmitting
-                    ? "Saving..."
-                    : editingNoteId !== null
-                      ? "Update note"
-                      : "Create note"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {noteToDelete && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="delete-note-title"
-          className="fixed inset-0 bg-black/50 flex items-center justify-center"
-        >
-          <div className="bg-white p-6 rounded w-full max-w-sm">
-            <h2
-              id="delete-note-title"
-              className="text-lg font-semibold mb-3"
-            >
-              Delete note
-            </h2>
-
-            <p className="text-sm text-gray-700 mb-6">
-              Are you sure you want to delete this note?
-              <br />
-              <strong>This action cannot be undone.</strong>
+            <p className="text-xs text-gray-500 mb-2">
+              {createTitle.length} / {TITLE_MAX_LENGTH} characters
             </p>
+
+            {createTitleError && (
+              <p className="text-sm text-red-600 mb-2">
+                {createTitleError}
+              </p>
+            )}
+
+            <textarea
+              value={createContent}
+              onChange={(e) => setCreateContent(e.target.value)}
+              className="w-full border p-2 mb-4"
+              placeholder="Content (optional)"
+            />
 
             <div className="flex justify-end gap-3">
               <button
                 type="button"
-                onClick={() => setNoteToDelete(null)}
+                onClick={() => setShowCreateModal(false)}
                 className="btn-secondary"
               >
                 Cancel
               </button>
 
               <button
-                type="button"
-                onClick={() => {
-                  setNotes((prev) =>
-                    prev.filter((n) => n.id !== noteToDelete.id)
-                  );
-                  setNoteToDelete(null);
-                }}
-                className="btn-danger"
+                type="submit"
+                className="btn-primary"
+                disabled={
+                  isSubmitting || createTitle.trim().length === 0
+                }
               >
-                Delete
+                {isSubmitting
+                  ? "Saving..."
+                  : editingNoteId !== null
+                  ? "Update note"
+                  : "Create note"}
               </button>
             </div>
-          </div>
+          </form>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    )}
+  </>
+);
 }
