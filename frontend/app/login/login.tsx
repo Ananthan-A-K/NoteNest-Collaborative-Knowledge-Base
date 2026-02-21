@@ -229,7 +229,7 @@ export default function LoginPage() {
               disabled={isSubmitting}
               className="w-full rounded-xl py-4 px-5 text-base font-medium border-0 flex items-center justify-center gap-2.5 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-info)] disabled:cursor-not-allowed disabled:opacity-60"
               style={{
-                background: "linear-gradient(135deg, var(--color-info) 0%, #8b5cf6 100%)",
+                background: "linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%)",
                 color: "white",
               }}
               aria-busy={isSubmitting}
@@ -249,11 +249,11 @@ export default function LoginPage() {
 
           <button
             type="button"
-            className="login-google-btn w-full rounded-xl border-2 py-4 px-5 text-base font-medium flex items-center justify-center gap-2.5 transition-colors hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-info)]"
+            className="login-google-btn w-full rounded-xl border-2 py-4 px-5 text-base font-medium flex items-center justify-center gap-2.5 transition-colors hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0ea5e9]"
             style={{
-              borderColor: "var(--color-border-light)",
-              color: "var(--color-text-primary)",
-              backgroundColor: "var(--color-background)",
+              borderColor: "#d1d5db",
+              color: "#1f2937",
+              backgroundColor: "#ffffff",
             }}
           >
             <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden>
@@ -280,17 +280,18 @@ export default function LoginPage() {
           transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
         }
         @media (prefers-color-scheme: light) {
-          .login-input { background: var(--color-gray-50) !important; }
+          .login-input { background: var(--color-gray-50) !important; color: #1f2937 !important; }
           .login-input::placeholder { color: var(--color-gray-400); }
         }
         @media (prefers-color-scheme: dark) {
-          .login-input { background: var(--color-gray-900) !important; }
+          .login-input { background: var(--color-gray-900) !important; color: #f9fafb !important; }
           .login-input::placeholder { color: var(--color-gray-500); }
         }
         /* Card and Google button: subtle elevation in dark so borders read clearly */
         @media (prefers-color-scheme: dark) {
           .login-card { box-shadow: 0 8px 40px -8px rgba(0,0,0,0.4), 0 2px 8px 0 rgba(0,0,0,0.2); }
-          .login-google-btn:hover { background: var(--color-gray-800) !important; border-color: var(--color-border-medium); }
+          .login-google-btn { border-color: #4b5563 !important; color: #f9fafb !important; background: #1f2937 !important; }
+          .login-google-btn:hover { background: #374151 !important; border-color: #6b7280; }
         }
         @media (prefers-color-scheme: light) {
           .login-google-btn:hover { background: var(--color-gray-50) !important; }

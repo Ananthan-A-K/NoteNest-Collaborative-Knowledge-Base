@@ -301,7 +301,7 @@ export default function SignupPage() {
               disabled={isSubmitting}
               className="w-full rounded-xl py-4 px-5 text-base font-medium border-0 flex items-center justify-center gap-2.5 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-info)] disabled:cursor-not-allowed disabled:opacity-60"
               style={{
-                background: "linear-gradient(135deg, var(--color-info) 0%, #8b5cf6 100%)",
+                background: "linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%)",
                 color: "white",
               }}
               aria-busy={isSubmitting}
@@ -329,11 +329,11 @@ export default function SignupPage() {
           transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
         }
         @media (prefers-color-scheme: light) {
-          .login-input { background: var(--color-gray-50) !important; }
+          .login-input { background: var(--color-gray-50) !important; color: #1f2937 !important; }
           .login-input::placeholder { color: var(--color-gray-400); }
         }
         @media (prefers-color-scheme: dark) {
-          .login-input { background: var(--color-gray-900) !important; }
+          .login-input { background: var(--color-gray-900) !important; color: #f9fafb !important; }
           .login-input::placeholder { color: var(--color-gray-500); }
         }
         /* Card: subtle elevation in dark so borders read clearly */
