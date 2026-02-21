@@ -92,46 +92,33 @@ export default function DashboardPage() {
             <div style={{ maxWidth: 900, margin: "0 auto" }}>
 
               {/* Welcome Section */}
-              <section
-                style={{ ...cardStyle, padding: "24px", borderRadius: 16 }}
-              >
-                <h2
-                  className="text-xl font-semibold mb-2"
-                  style={{ color: "var(--color-text-primary)" }}
-                >
+              <section className="p-6 rounded-2xl" style={{ ...cardStyle }}>
+                <h2 className="text-xl font-semibold mb-2 text-white">
                   Welcome back!
                 </h2>
 
-                <p
-                  className="text-sm mb-3"
-                  style={{ color: "var(--color-text-secondary)" }}
-                >
+                <p className="text-sm mb-3 text-gray-400">
                   This is your NoteNest dashboard. Get started by creating your
                   first note and organizing your team's knowledge.
                 </p>
               </section>
 
               {/* Quick Actions */}
-              <section style={{ ...cardStyle, borderRadius: 16, marginTop: 24 }}>
-                <div style={{ padding: 20, borderBottom: "1px solid #222" }}>
-                  <h3 style={{ color: "#fff" }}>Quick Actions</h3>
+              <section className="rounded-2xl mt-6 overflow-hidden" style={{ ...cardStyle }}>
+                <div className="px-5 py-4 border-b border-[#222]">
+                  <h3 className="text-white font-semibold">Quick Actions</h3>
                 </div>
 
-                <div style={{ padding: 20, display: "flex", gap: 12 }}>
+                <div className="p-5 flex gap-3">
                   {canCreateNote && (
-                    <Link href="/notes?new=1" className="btn-primary">
+                    <Link href="/notes?new=1" className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition">
                       Create Note
                     </Link>
                   )}
 
                   <Link
                     href="/notes"
-                    style={{
-                      border: "1px solid #333",
-                      color: "#fff",
-                      padding: "8px 16px",
-                      borderRadius: 8,
-                    }}
+                    className="border border-[#333] hover:bg-[#1a1a1a] text-white px-4 py-2 rounded-lg font-medium transition"
                   >
                     View All Notes
                   </Link>
@@ -139,40 +126,17 @@ export default function DashboardPage() {
               </section>
 
               {/* Recent Notes */}
-              <section
-                style={{
-                  ...cardStyle,
-                  borderRadius: 16,
-                  marginTop: 32,
-                }}
-              >
-                <div style={{ padding: 20, borderBottom: "1px solid #222" }}>
-                  <h3
-                    style={{
-                      color: "#e5e7eb",
-                      fontWeight: 600,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
+              <section className="rounded-2xl mt-8 overflow-hidden" style={{ ...cardStyle }}>
+                <div className="px-5 py-4 border-b border-[#222]">
+                  <h3 className="text-gray-200 font-semibold flex items-center gap-2">
                     Recent Notes
-                    <span
-                      style={{
-                        background: "rgba(167, 139, 250, 0.15)",
-                        color: "#a78bfa",
-                        padding: "2px 8px",
-                        borderRadius: 999,
-                        fontSize: 12,
-                        fontWeight: 500,
-                      }}
-                    >
+                    <span className="bg-purple-500/15 text-purple-400 px-2.5 py-0.5 rounded-full text-xs font-medium">
                       {recentNotes.length}
                     </span>
                   </h3>
                 </div>
 
-                <div style={{ padding: 20 }}>
+                <div className="p-5">
                   {recentNotes.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-gray-400">
                       <div className="text-2xl mb-3">📝</div>
@@ -196,40 +160,17 @@ export default function DashboardPage() {
                     recentNotes.map((note) => (
                       <div
                         key={note.id}
-                        className="
-                          transition-all duration-200 ease-in-out
-                          hover:scale-[1.02]
-                          hover:shadow-lg
-                          hover:border-gray-500/40
-                          cursor-pointer
-                        "
-                        style={{
-                          padding: 16,
-                          border: "1px solid #222",
-                          borderRadius: 12,
-                          marginBottom: 12,
-                          background: "#0f0f0f",
-                        }}
+                        className="transition-all duration-200 ease-in-out hover:scale-[1.01] hover:shadow-lg cursor-pointer p-4 border border-[#222] hover:border-gray-500/40 rounded-xl mb-3 bg-[#0f0f0f]"
                       >
-                        <div style={{ color: "#fff", fontWeight: 600 }}>
+                        <div className="text-white font-semibold mb-1">
                           {note.title}
                         </div>
 
-                        <div
-                          className={`text-sm font-medium ${
-                            note.workspace === "Team"
-                              ? "text-purple-400"
-                              : note.workspace === "Personal"
-                              ? "text-blue-400"
-                              : note.workspace === "Product"
-                              ? "text-green-400"
-                              : "text-gray-400"
-                          }`}
-                        >
+                        <div className={`text-sm font-medium ${getWorkspaceBadgeClass(note.workspace)} inline-block px-2 rounded mb-2`}>
                           {note.workspace}
                         </div>
 
-                        <div style={{ color: "#666", fontSize: 12 }}>
+                        <div className="text-gray-500 text-xs">
                           {getTimeAgo(note.createdAt)}
                         </div>
                       </div>

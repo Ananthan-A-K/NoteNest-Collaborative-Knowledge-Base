@@ -142,6 +142,34 @@ class ApiService {
     });
   }
 
+  async getInvites(workspaceId: string): Promise<any[]> {
+    return this.request(`/api/workspaces/${workspaceId}/invites`);
+  }
+
+  async createInvite(workspaceId: string, email: string, role: string): Promise<any> {
+    return this.request(`/api/workspaces/${workspaceId}/invites`, {
+      method: 'POST',
+      body: JSON.stringify({ email, role }),
+    });
+  }
+
+  async revokeInvite(workspaceId: string, inviteId: string): Promise<void> {
+    return this.request(`/api/workspaces/${workspaceId}/invites/${inviteId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getInviteDetails(token: string): Promise<any> {
+    return this.request(`/api/workspaces/invites/${token}`);
+  }
+
+  async acceptInvite(token: string): Promise<any> {
+    return this.request('/api/workspaces/accept-invite', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    });
+  }
+
   async getAuditLogs(workspaceId: string, limit = 50, skip = 0): Promise<AuditLog[]> {
     return this.request(`/api/workspaces/${workspaceId}/audit-logs?limit=${limit}&skip=${skip}`);
   }

@@ -38,27 +38,17 @@ export default function ManagementPage() {
         <Sidebar />
         <div className="flex-1 flex flex-col min-w-0">
           <Header title="Management" />
-          <main
-            className="flex-1 p-6 overflow-auto flex items-center justify-center"
-            style={{ background: "var(--color-background)" }}
-          >
-            <div
-              className="max-w-md rounded-xl border p-6 text-center"
-              style={{
-                borderColor: "var(--color-border-light)",
-                background: "var(--color-background)",
-              }}
-            >
-              <p className="text-sm font-medium mb-2" style={{ color: "var(--color-text-primary)" }}>
+          <main className="flex-1 p-6 overflow-auto flex items-center justify-center bg-black">
+            <div className="max-w-md rounded-xl p-6 text-center" style={{ background: "#0b0b0b", border: "1px solid #1f1f1f", boxShadow: "0 10px 40px rgba(0,0,0,0.9)" }}>
+              <p className="text-sm font-medium mb-2 text-white">
                 Admin only
               </p>
-              <p className="text-sm mb-4" style={{ color: "var(--color-text-muted)" }}>
+              <p className="text-sm mb-6 text-gray-400">
                 You need the Admin role to access Management. This area is for workspace settings, members, and roles.
               </p>
               <Link
                 href="/dashboard"
-                className="btn-secondary inline-block"
-                style={{ fontSize: "var(--font-size-sm)", padding: "var(--space-sm) var(--space-md)" }}
+                className="inline-block bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-5 py-2 transition-colors text-sm font-medium"
               >
                 Back to Dashboard
               </Link>
@@ -74,27 +64,21 @@ export default function ManagementPage() {
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Header title="Management" />
-        <main
-          className="flex-1 p-6 overflow-auto"
-          style={{ background: "var(--color-background)" }}
-        >
+        <main className="flex-1 p-6 overflow-auto bg-black text-white">
           <div className="max-w-4xl mx-auto">
             <section
-              className="rounded-2xl border p-6 mb-6"
-              style={{
-                background: "var(--color-background)",
-                borderColor: "var(--color-border-light)",
-              }}
+              className="rounded-2xl p-6 mb-8"
+              style={{ background: "#0b0b0b", border: "1px solid #1f1f1f", boxShadow: "0 10px 40px rgba(0,0,0,0.9)" }}
             >
-              <h2 className="text-lg font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>
+              <h2 className="text-xl font-semibold mb-2 text-white">
                 Hierarchical RBAC Management
               </h2>
-              <p className="text-sm mb-4" style={{ color: "var(--color-text-secondary)" }}>
+              <p className="text-sm mb-6 text-gray-400">
                 Manage groups, permissions, and access links for granular control over workspace resources.
               </p>
 
               {/* Tabs */}
-              <div className="flex space-x-1 mb-6">
+              <div className="flex space-x-1 mb-6 border-b border-[#222] pb-1">
                 {[
                   { id: 'groups', label: 'Groups' },
                   { id: 'permissions', label: 'Permissions' },
@@ -103,10 +87,10 @@ export default function ManagementPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
                       activeTab === tab.id
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                        ? 'bg-[#1f1f1f] text-white border-t border-x border-[#333]'
+                        : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a1a]'
                     }`}
                   >
                     {tab.label}
@@ -118,24 +102,26 @@ export default function ManagementPage() {
               {activeTab === 'groups' && (
                 <div>
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-md font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                    <h3 className="text-md font-semibold text-white">
                       User Groups
                     </h3>
-                    <button className="btn-primary text-sm">Create Group</button>
+                    <button className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-sm transition font-medium">Create Group</button>
                   </div>
                   <div className="space-y-3">
                     {groups.length === 0 ? (
-                      <p className="text-sm text-gray-500">No groups created yet.</p>
+                      <div className="text-center py-8 text-gray-400 border border-[#222] rounded-xl bg-[#0f0f0f]">
+                        <p className="text-sm">No groups created yet.</p>
+                      </div>
                     ) : (
                       groups.map((group) => (
-                        <div key={group._id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div key={group._id} className="flex items-center justify-between p-4 border border-[#222] bg-[#0f0f0f] rounded-xl hover:border-gray-500/40 transition">
                           <div>
-                            <p className="font-medium">{group.name}</p>
-                            <p className="text-sm text-gray-500">{group.members.length} members</p>
+                            <p className="font-medium text-white">{group.name}</p>
+                            <p className="text-sm text-gray-400">{group.members.length} members</p>
                           </div>
-                          <div className="flex space-x-2">
-                            <button className="text-sm text-blue-600 hover:text-blue-800">Edit</button>
-                            <button className="text-sm text-red-600 hover:text-red-800">Delete</button>
+                          <div className="flex space-x-3">
+                            <button className="text-sm text-blue-400 hover:text-blue-300 transition">Edit</button>
+                            <button className="text-sm text-red-500 hover:text-red-400 transition">Delete</button>
                           </div>
                         </div>
                       ))
@@ -147,24 +133,26 @@ export default function ManagementPage() {
               {activeTab === 'permissions' && (
                 <div>
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-md font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                    <h3 className="text-md font-semibold text-white">
                       Resource Permissions
                     </h3>
-                    <button className="btn-primary text-sm">Grant Permission</button>
+                    <button className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-sm transition font-medium">Grant Permission</button>
                   </div>
                   <div className="space-y-3">
                     {permissions.length === 0 ? (
-                      <p className="text-sm text-gray-500">No permissions granted yet.</p>
+                      <div className="text-center py-8 text-gray-400 border border-[#222] rounded-xl bg-[#0f0f0f]">
+                        <p className="text-sm">No permissions granted yet.</p>
+                      </div>
                     ) : (
                       permissions.map((perm) => (
-                        <div key={perm._id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div key={perm._id} className="flex items-center justify-between p-4 border border-[#222] bg-[#0f0f0f] rounded-xl hover:border-gray-500/40 transition">
                           <div>
-                            <p className="font-medium">{perm.resourcePath}</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="font-medium text-white">{perm.resourcePath}</p>
+                            <p className="text-sm text-gray-400">
                               {perm.subjectType}: {perm.subjectId} - {perm.permissions.join(', ')}
                             </p>
                           </div>
-                          <button className="text-sm text-red-600 hover:text-red-800">Revoke</button>
+                          <button className="text-sm text-red-500 hover:text-red-400 transition">Revoke</button>
                         </div>
                       ))
                     )}
@@ -175,29 +163,26 @@ export default function ManagementPage() {
               {activeTab === 'access-links' && (
                 <div>
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-md font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                    <h3 className="text-md font-semibold text-white">
                       Temporary Access Links
                     </h3>
-                    <button className="btn-primary text-sm">Create Access Link</button>
+                    <button className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-sm transition font-medium">Create Access Link</button>
                   </div>
-                  <div className="space-y-3">
-                    <p className="text-sm text-gray-500">Access links functionality coming soon.</p>
+                  <div className="text-center py-8 text-gray-400 border border-[#222] rounded-xl bg-[#0f0f0f]">
+                    <p className="text-sm">Access links functionality coming soon.</p>
                   </div>
                 </div>
               )}
             </section>
 
             <section
-              className="rounded-2xl border p-6"
-              style={{
-                background: "var(--color-background)",
-                borderColor: "var(--color-border-light)",
-              }}
+              className="rounded-2xl p-6"
+              style={{ background: "#0b0b0b", border: "1px solid #1f1f1f", boxShadow: "0 10px 40px rgba(0,0,0,0.9)" }}
             >
-              <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--color-text-primary)" }}>
+              <h2 className="text-xl font-semibold mb-2 text-white">
                 Feature Flags
               </h2>
-              <p className="text-sm mb-4" style={{ color: "var(--color-text-secondary)" }}>
+              <p className="text-sm mb-6 text-gray-400">
                 Control experimental and optional features. Changes are saved automatically.
               </p>
               <FeatureFlagExample />
